@@ -20,10 +20,33 @@ public class PohladavkaEntity {
     private String obec;
     @Column(name = "ulica_cislo")
     private String ulica;
+    @Column(name = "prve_meno")
+    private String prve_meno;
+    @Column(name = "priezvisko")
+    private String priezvisko;
+    @Column(name = "nano-id")
+    private String nanoId;
+
     @Id
     @Column(name = "id")
     private int id;
-    
+
+    public String getPrve_meno() {
+        return prve_meno;
+    }
+
+    public void setPrve_meno(String prve_meno) {
+        this.prve_meno = prve_meno;
+    }
+
+    public String getPriezvisko() {
+        return priezvisko;
+    }
+
+    public void setPriezvisko(String priezvisko) {
+        this.priezvisko = priezvisko;
+    }
+
     public String getObec() {
         return obec;
     }

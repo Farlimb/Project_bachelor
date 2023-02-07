@@ -1,10 +1,13 @@
 package com.example.bakalarka_jpa.restController;
 
+import com.example.bakalarka_jpa.dto.FindRequestDTO;
+import com.example.bakalarka_jpa.dto.FindResponseDTO;
+import com.example.bakalarka_jpa.dto.UpdateRequestDTO;
 import com.example.bakalarka_jpa.entities.PohladavkaEntity;
 import com.example.bakalarka_jpa.services.PohladavkaService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Set;
 
 @RestController
 public class PohladavkaController {
@@ -24,6 +27,16 @@ public class PohladavkaController {
         PohladavkaEntity pohladavkaEntity = pohladavkaService.FindById(id).orElse(null);
         return pohladavkaEntity;
     }
+    @PostMapping("/find")
+    public Set<FindResponseDTO> findByparams(@RequestBody FindRequestDTO params){
+        return pohladavkaService.FindByParams(params);
+    }
+
+    @PostMapping("/update")
+    public String updateByparams(@RequestBody UpdateRequestDTO params){
+        return pohladavkaService.UpdateByParams(params);
+    }
+
     @GetMapping("/phonetic")
     public void convert(){
         pohladavkaService.ConvertAll();
