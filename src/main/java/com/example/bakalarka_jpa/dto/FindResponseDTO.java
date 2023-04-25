@@ -1,4 +1,4 @@
 package com.example.bakalarka_jpa.dto;
 
-public record FindResponseDTO(String meno, String priezvisko, String ulica, String obec) {
+public record FindResponseDTO(String meno, String priezvisko, String ulica, String obec,int match, String nanoId) {
 }

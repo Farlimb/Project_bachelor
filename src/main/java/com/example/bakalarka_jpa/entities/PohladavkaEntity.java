@@ -1,16 +1,13 @@
 package com.example.bakalarka_jpa.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "pohladavka")
 public class PohladavkaEntity {
-    @Column(name = "prve_meno_upravene",columnDefinition="TEXT")
+    @Column(name = "prve_meno_upravene", columnDefinition = "TEXT")
     private String prveMenoUpravene;
-    @Column(name = "priezvisko_upravene",columnDefinition="TEXT")
+    @Column(name = "priezvisko_upravene", columnDefinition = "TEXT")
     private String priezviskoUpravene;
     @Column(name = "prve_meno_upravene_kolner")
     private String prveMenoUpraveneKolner;
@@ -28,6 +25,7 @@ public class PohladavkaEntity {
     private String nanoId;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
 
@@ -102,5 +100,13 @@ public class PohladavkaEntity {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getNanoId() {
+        return nanoId;
+    }
+
+    public void setNanoId(String nanoId) {
+        this.nanoId = nanoId;
     }
 }

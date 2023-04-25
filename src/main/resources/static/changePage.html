@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Selected Record</title>
+</head>
+<body>
+<h1>Selected Record</h1>
+
+<div id="selectedRecordContainer">
+    <!-- The selected record will be displayed here -->
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+            const showData = location.search.substring(1).split('&');
+            let person = {};
+
+            showData.forEach(pair => {
+                let keyValue = pair.split("=");
+                let key = keyValue[0];
+                person[key] = decodeURI(keyValue[1]);
+            })
+                const resultsContainer = document.getElementById('selectedRecordContainer');
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <h2>Hello: ${person.meno}</h2>
+                    <h2>${person.priezvisko}</h2>
+                    <p>${person.nanoId}</p>
+                    <p>${person.obec}</p>
+                    <p>${person.ulica}</p>
+                `;
+            resultsContainer.appendChild(div);
+        });
+</script>
+</body>
+</html>

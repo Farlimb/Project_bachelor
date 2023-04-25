@@ -1,5 +1,6 @@
 package com.example.bakalarka_jpa.restController;
 
+import com.example.bakalarka_jpa.dto.CreateRequestDTO;
 import com.example.bakalarka_jpa.dto.FindRequestDTO;
 import com.example.bakalarka_jpa.dto.FindResponseDTO;
 import com.example.bakalarka_jpa.dto.UpdateRequestDTO;
@@ -17,27 +18,26 @@ public class PohladavkaController {
         this.pohladavkaService = pohladavkaService;
     }
 
-//    @GetMapping("/{meno}/{priezvisko/{obec}/{ulica}")
-//    public PohladavkaEntity findByNameAndAddress(@PathVariable String meno, String priezvisko, String obec, String ulica){
-//        PohladavkaEntity pohladavkaEntity = pohladavkaService.
-//        return pohladavkaEntity;
-//    }
-    @GetMapping("/{id}")
-    public PohladavkaEntity findById(@PathVariable int id){
-        PohladavkaEntity pohladavkaEntity = pohladavkaService.FindById(id).orElse(null);
-        return pohladavkaEntity;
-    }
-    @PostMapping("/find")
+    @PostMapping("/find") //Web funkcia na vyhľadanie podľa poslaných vstupných údajov
     public Set<FindResponseDTO> findByparams(@RequestBody FindRequestDTO params){
         return pohladavkaService.FindByParams(params);
     }
 
-    @PostMapping("/update")
+    @PostMapping("/update") //Web funkcia na vyhľadanie a vytvorenie nového záznamu podľa poslaných vstupných údajov s tým istým identifikátorom
     public String updateByparams(@RequestBody UpdateRequestDTO params){
         return pohladavkaService.UpdateByParams(params);
     }
 
-    @GetMapping("/phonetic")
+    @PostMapping("/create") //Web funkcia na vytvorenie nového záznamu podľa poslaných vstupných údajov
+    public String createByparams(@RequestBody CreateRequestDTO params){
+        return pohladavkaService.CreateByParams(params);
+    }
+
+    @PostMapping("/delete") //Web funkcia na vymazanie nového záznamu podľa poslaných vstupných údajov
+    public String deleteByparams(@RequestBody FindRequestDTO params){
+        return pohladavkaService.DeleteByParams(params);
+    }
+    @GetMapping("/intializedb") //Web funkcia na inicializáciu údajov v databáze do príslušných stĺpcov
     public void convert(){
         pohladavkaService.ConvertAll();
     }

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
+<head>
+    <title>Submit Data to JPA Server</title>
+    <link rel="stylesheet" href="css/stylesheet.css"/>
+</head>
+<body style="background-image: url('images/pexels-johannes-plenio-1103970.jpg');
+    background-size: cover;">
+<h1>Submit Data to JPA Server</h1>
+<form class="container" action="http://localhost:8080/find" method="post">
+    <label for="meno">Meno:</label>
+    <input type="text" id="meno" name="meno" required>
+    <br>
+
+    <label for="priezvisko">Priezvisko:</label>
+    <input type="text" id="priezvisko" name="priezvisko" required>
+    <br>
+
+    <label for="nanoId">Nano ID:</label>
+    <input type="text" id="nanoId" name="nanoId">
+    <br>
+
+    <label for="obec">Obec:</label>
+    <input type="text" id="obec" name="obec">
+    <br>
+
+    <label for="ulica">Ulica:</label>
+    <input type="text" id="ulica" name="ulica">
+    <br>
+    <input type="submit" value="Submit">
+</form>
+
+<script>
+    document.querySelector('form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const meno = document.getElementById('meno').value;
+        const priezvisko = document.getElementById('priezvisko').value;
+        const nanoId = document.getElementById('nanoId').value;
+        const ulica = document.getElementById('ulica').value;
+        const obec = document.getElementById('obec').value;
+        const payload = {meno, priezvisko, nanoId, ulica, obec};
+        console.log(payload);
+        const response = await fetch('http://localhost:8080/find', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+        if (response.ok) {
+            const data = await response.json();
+            if (Array.isArray(data) && data.length === 0) {
+                console.log('Response data is empty array. Not redirecting to new page.');
+                alert('Person not found!');
+            } else {
+                console.log(data.nanoId);
+                console.log("som tu!!!!!");
+                localStorage.setItem('responseData', JSON.stringify(data));
+                window.location.href = 'searchResults.html';
+            }
+        } else {
+            alert('Person not found!');
+        }
+    });
+</script>
+</body>
+</html>

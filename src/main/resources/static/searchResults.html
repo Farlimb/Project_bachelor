@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Results</title>
+</head>
+<body>
+<h1>Results</h1>
+
+<div id="resultsContainer">
+    <!-- Data records will be displayed here -->
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const responseData = JSON.parse(localStorage.getItem('responseData'));
+        if (Array.isArray(responseData)) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            responseData.forEach(data => {
+                const div = document.createElement('form');
+                div.innerHTML = `
+                    <h2>${data.meno}</h2>
+                    <h2>${data.priezvisko}</h2>
+                    <p>${data.nanoId}</p>
+                    <p>${data.obec}</p>
+                    <p>${data.ulica}</p>
+                    <p>${data["match"]}</p>
+                    <button type="submit" class="changeBtn" data-nanoId="${encodeURI(JSON.stringify(data))}">Change</button>
+                `;
+                resultsContainer.appendChild(div);
+            });
+
+            document.querySelector('form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const data = e.target.querySelector("button").getAttribute("data-nanoId")
+                let recordId = JSON.parse(decodeURI(data));
+                        let query = Object.entries(recordId).map(entry => `${entry[0]}=${encodeURI(entry[1])}`).join("&")
+                        window.location.href = 'changePage.html?'+ query;
+            })
+        }
+    });
+</script>
+</body>
+</html>
