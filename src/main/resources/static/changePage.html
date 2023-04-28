@@ -9,7 +9,24 @@
 <div id="selectedRecordContainer">
     <!-- The selected record will be displayed here -->
 </div>
+<form id='inputForm' class="container" action="http://localhost:8080/update" method="post" onSubmit="return confirm('Do you want to submit?') ">
+    <label for="meno">Meno:</label>
+    <input type="text" id="meno" name="meno">
+    <br>
 
+    <label for="priezvisko">Priezvisko:</label>
+    <input type="text" id="priezvisko" name="priezvisko">
+    <br>
+
+    <label for="obec">Obec:</label>
+    <input type="text" id="obec" name="obec">
+    <br>
+
+    <label for="ulica">Ulica:</label>
+    <input type="text" id="ulica" name="ulica">
+    <br>
+    <input type="submit" value="Change record">
+</form>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
             const showData = location.search.substring(1).split('&');
@@ -21,16 +38,98 @@
                 person[key] = decodeURI(keyValue[1]);
             })
                 const resultsContainer = document.getElementById('selectedRecordContainer');
-                const div = document.createElement('div');
+                const div = document.createElement('form');
                 div.innerHTML = `
                     <h2>Hello: ${person.meno}</h2>
                     <h2>${person.priezvisko}</h2>
                     <p>${person.nanoId}</p>
                     <p>${person.obec}</p>
                     <p>${person.ulica}</p>
+                    <button type="submit" class="deleteBtn" data-nanoId="${encodeURI(JSON.stringify(person))}">Delete record</button>
                 `;
-            resultsContainer.appendChild(div);
+
+                resultsContainer.appendChild(div);
+        document.getElementById('inputForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if(document.getElementById('meno').value === "" && document.getElementById('priezvisko').value === "" && document.getElementById('ulica').value === "" && document.getElementById('obec').value === ""){
+                alert( "Please enter at least field" );
+            }
+            else {
+                const meno = person.meno;
+                const priezvisko = person.priezvisko;
+                const ulica = person.ulica;
+                const obec = person.obec;
+                const menoUprava = document.getElementById('meno').value;
+                const priezviskoUprava = document.getElementById('priezvisko').value;
+                const ulicaUprava = document.getElementById('ulica').value;
+                const obecUprava = document.getElementById('obec').value;
+                const nanoId = person.nanoId;
+                const payload = {
+                    meno,
+                    priezvisko,
+                    ulica,
+                    obec,
+                    menoUprava,
+                    priezviskoUprava,
+                    ulicaUprava,
+                    obecUprava,
+                    nanoId
+                };
+                console.log(payload);
+                const response = await fetch('http://localhost:8080/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (Array.isArray(data) && data.length === 0) {
+                        console.log('Response data is empty array. Not redirecting to new page.');
+                        alert('Person not found!');
+                    } else {
+                        console.log(data.nanoId);
+                        console.log("som tu!!!!!");
+                        localStorage.setItem('responseData', JSON.stringify(data));
+                        window.location.href = 'searchResults.html';
+                    }
+                } else {
+                    alert('Person not found!');
+                }
+            }
+        });
+
+        document.querySelector('form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const confirmed = confirm("Are you sure you want to delete this record?");
+            if(confirmed){
+            const data = e.target.querySelector("button").getAttribute("data-nanoId")
+            let recordId = JSON.parse(decodeURI(data));
+            const meno = recordId.meno;
+            const priezvisko = recordId.priezvisko;
+            const nanoId = recordId.nanoId;
+            const ulica = recordId.ulica;
+            const obec = recordId.obec;
+            const payload = {meno, priezvisko, nanoId, ulica, obec};
+            const response = await fetch('http://localhost:8080/delete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+            if (response.ok) {
+                window.location.href = 'index.html';
+                } else {
+                    alert('An error occurred while deleting the record.');
+                }
+            }
+        })
         });
 </script>
+
+
+
 </body>
 </html>

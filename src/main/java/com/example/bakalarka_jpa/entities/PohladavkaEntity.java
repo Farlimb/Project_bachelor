@@ -109,4 +109,5 @@ public class PohladavkaEntity {
     public void setNanoId(String nanoId) {
         this.nanoId = nanoId;
     }
+
 }

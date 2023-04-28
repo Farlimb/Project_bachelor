@@ -4,7 +4,6 @@ import com.example.bakalarka_jpa.dto.CreateRequestDTO;
 import com.example.bakalarka_jpa.dto.FindRequestDTO;
 import com.example.bakalarka_jpa.dto.FindResponseDTO;
 import com.example.bakalarka_jpa.dto.UpdateRequestDTO;
-import com.example.bakalarka_jpa.entities.PohladavkaEntity;
 import com.example.bakalarka_jpa.services.PohladavkaService;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +28,7 @@ public class PohladavkaController {
     }
 
     @PostMapping("/create") //Web funkcia na vytvorenie nového záznamu podľa poslaných vstupných údajov
-    public String createByparams(@RequestBody CreateRequestDTO params){
+    public Set<FindResponseDTO> createByparams(@RequestBody CreateRequestDTO params){
         return pohladavkaService.CreateByParams(params);
     }
 

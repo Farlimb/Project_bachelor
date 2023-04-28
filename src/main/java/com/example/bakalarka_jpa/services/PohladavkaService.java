@@ -39,14 +39,14 @@ public class PohladavkaService {
     }
 
 
-    public String CreateByParams(CreateRequestDTO list){   // funkcia na vytvorenie nového záznamu dlžníka
+    public Set<FindResponseDTO> CreateByParams(CreateRequestDTO list){   // funkcia na vytvorenie nového záznamu dlžníka
 
         if(list.meno() == null || list.priezvisko() == null || list.obec() == null || list.ulica() == null){    //Kontrola či nevyrábame neúplný záznam
-            return "Error creating a new record";
+            return null;
         }
 
         if(list.meno().isEmpty() || list.priezvisko().isEmpty() || list.obec().isEmpty() || list.ulica().isEmpty()){ //Kontrola či nevyrábame neúplný záznam
-            return "Error creating a new record";
+            return null;
         }
 
         //vytváranie nového záznamu s aplikáciou úprav vstupu
@@ -63,9 +63,10 @@ public class PohladavkaService {
         newRecord.setObec(list.obec());
         newRecord.setUlica(list.ulica());
 
-        pohladavkaJPA.saveAndFlush(newRecord);
-        return "Successfully created new record";
-    }
+        //pohladavkaJPA.saveAndFlush(newRecord)
+        Set<FindResponseDTO> setEntit = new HashSet<>();
+        setEntit.add(new FindResponseDTO(newRecord.getPrve_meno(), newRecord.getPriezvisko(), newRecord.getUlica(), newRecord.getObec(), 100, newRecord.getNanoId()));
+        return setEntit;}
     public Set<FindResponseDTO> FindByParams(FindRequestDTO list) { //funkcia na vyhľadanie záznamu alebo záznamov sediacich pre vstupné údaje
         //deklarácia premien pre ďalšiu prácu s nimi
         String meno_upravene = normalizeName(list.meno());
@@ -83,49 +84,27 @@ public class PohladavkaService {
 
         //Vyhľadanie všetkých záznamov s rovnakou fonetickou stopou prvého mena a priezviska
         List<PohladavkaEntity> result = pohladavkaJPA.findAllByPrveMenoUpraveneKolnerAndPriezviskoUpraveneKolnerOrNanoId(meno_Kolner, priezvisko_Kolner, list.nanoId());
-        Set<FindResponseDTO> setEntit = new HashSet<>();
+
+        //Set<FindResponseDTO> setEntit = new HashSet<>();
+
+        Set<FindResponseDTO> setEntit = new TreeSet<>(new Comparator<FindResponseDTO>() {
+            @Override
+            public int compare(FindResponseDTO o1, FindResponseDTO o2) {
+                return Double.compare(o2.match(), o1.match());
+            }
+        });
 
         if(result!=null) {
             for (PohladavkaEntity entity : result) { //Cyklus na automatický výpočet zhody so vstupnými údajmi, ak existujú
-                if (list.meno() != null) {
-                    meno_zhoda = FuzzySearch.ratio(list.meno(), entity.getPrve_meno());
-                    System.out.println(meno_zhoda);
-                }
-
-                if (list.priezvisko() != null) {
-                    priezvisko_zhoda = FuzzySearch.ratio(list.priezvisko(), entity.getPriezvisko());
-                    System.out.println(priezvisko_zhoda);
-                }
-
-                if (list.obec() != null && !list.obec().equals("")) {
-                    obec_zhoda = FuzzySearch.weightedRatio(list.obec(), entity.getObec());
-                    System.out.println(obec_zhoda);
-                }
-                if (list.ulica() != null && !list.ulica().equals("")) {
-                    ulica_zhoda = FuzzySearch.weightedRatio(list.ulica(), entity.getUlica());
-                    System.out.println(ulica_zhoda);
-                }
-                celkova_zhoda = Math.min(meno_zhoda, priezvisko_zhoda);
-
-                if (list.obec() != null && !list.obec().equals("")) {
-                    System.out.println(list.obec());
-                    celkova_zhoda = Math.min(celkova_zhoda, obec_zhoda);
-                }
-
-                if (list.ulica() != null && !list.ulica().equals("")) {
-                    System.out.println(list.ulica());
-                    celkova_zhoda = Math.min(celkova_zhoda, ulica_zhoda);
-                }
-                if (Objects.equals(list.nanoId(), entity.getNanoId())) {
-                    System.out.println(list.nanoId());
-                    celkova_zhoda = 100;
-                }
-
+                celkova_zhoda = calculateMatch(list, entity, celkova_zhoda);
                 setEntit.add(new FindResponseDTO(entity.getPrve_meno(), entity.getPriezvisko(), entity.getUlica(), entity.getObec(), celkova_zhoda, entity.getNanoId()));
             }
         }
+
+
         return setEntit;
     }
+
 
     public String UpdateByParams(UpdateRequestDTO list) { //funkcia na zaevidovanie zmeny
         String meno_Kolner = colner.encode(normalizeName(list.meno()));
@@ -133,7 +112,7 @@ public class PohladavkaService {
         nanoId = list.nanoId();
         PohladavkaEntity result = pohladavkaJPA.findFirstByPrveMenoUpraveneKolnerAndPriezviskoUpraveneKolnerAndObecAndUlicaAndNanoId(meno_Kolner, priezvisko_Kolner,list.obec(),list.ulica(), nanoId);
         PohladavkaEntity checkUp = pohladavkaJPA.findFirstByPrveMenoUpraveneKolnerAndPriezviskoUpraveneKolnerAndObecAndUlicaAndNanoId(colner.encode(normalizeName(list.menoUprava())), colner.encode(normalizeName(list.priezviskoUprava())),list.obecUprava(),list.ulicaUprava(), nanoId);
-
+        System.out.println(result);
         if(checkUp != null){ //kontrola či nové dáta sa úplne nezhodujú so starými dátami
             return "Not updated, same record for the updated record found";
         }
@@ -141,24 +120,59 @@ public class PohladavkaService {
         if(result == null){ //kontrola či staré dáta existujú
             return "Not updated, couldn't find record";
         }
+
         //Vytváranie nového záznamu s aplikáciou úprav vstupu
         PohladavkaEntity newUpdatedRecord = new PohladavkaEntity();
 
         newUpdatedRecord.setNanoId(list.nanoId()); //Zaevidovanie toho istého nanoId keďže ide o tú istú osobu, zabezpečuje evidenciu dlžníka s meniacimi sa údajmi
+        if(!list.menoUprava().isEmpty()) {
+            newUpdatedRecord.setPrve_meno(list.menoUprava());
+            newUpdatedRecord.setPrveMenoUpravene(normalizeName(list.menoUprava()));
+            newUpdatedRecord.setPrveMenoUpraveneKolner(colner.encode(normalizeName(list.menoUprava())));
+        }
+        else{
+            newUpdatedRecord.setPrve_meno(list.meno());
+            newUpdatedRecord.setPrveMenoUpravene(normalizeName(list.meno()));
+            newUpdatedRecord.setPrveMenoUpraveneKolner(colner.encode(normalizeName(list.meno())));
+        }
 
-        newUpdatedRecord.setPrve_meno(list.menoUprava());
-        newUpdatedRecord.setPrveMenoUpravene(normalizeName(list.menoUprava()));
-        newUpdatedRecord.setPrveMenoUpraveneKolner(colner.encode(normalizeName(list.menoUprava())));
+        if(!list.priezviskoUprava().isEmpty()) {
+            newUpdatedRecord.setPriezvisko(list.priezviskoUprava());
+            newUpdatedRecord.setPriezviskoUpravene(normalizeName(list.priezviskoUprava()));
+            newUpdatedRecord.setPriezviskoUpraveneKolner(colner.encode(normalizeName(list.priezviskoUprava())));
+        }
+        else{
+            newUpdatedRecord.setPriezvisko(list.priezvisko());
+            newUpdatedRecord.setPriezviskoUpravene(normalizeName(list.priezvisko()));
+            newUpdatedRecord.setPriezviskoUpraveneKolner(colner.encode(normalizeName(list.priezvisko())));
+        }
 
-        newUpdatedRecord.setPriezvisko(list.priezviskoUprava());
-        newUpdatedRecord.setPriezviskoUpravene(normalizeName(list.priezviskoUprava()));
-        newUpdatedRecord.setPriezviskoUpraveneKolner(colner.encode(normalizeName(list.priezviskoUprava())));
+        if(!list.obecUprava().isEmpty()){
+            newUpdatedRecord.setObec(list.obecUprava());
+        }
+        else{
+            newUpdatedRecord.setObec(list.obec());
+        }
 
-        newUpdatedRecord.setObec(list.obecUprava());
-        newUpdatedRecord.setUlica(list.ulicaUprava());
+        if(!list.ulicaUprava().isEmpty()){
+            newUpdatedRecord.setUlica(list.ulicaUprava());
+        }
+        else{
+            newUpdatedRecord.setUlica(list.ulica());
+        }
 
-
-        pohladavkaJPA.saveAndFlush(newUpdatedRecord);
+        System.out.println(newUpdatedRecord.getPrve_meno());
+        System.out.println(newUpdatedRecord.getPriezvisko());
+        System.out.println(newUpdatedRecord.getObec());
+        System.out.println(newUpdatedRecord.getUlica());
+        PohladavkaEntity checkTwo = pohladavkaJPA.findFirstByPrveMenoUpraveneKolnerAndPriezviskoUpraveneKolnerAndObecAndUlicaAndNanoId(colner.encode(normalizeName(newUpdatedRecord.getPrve_meno())), colner.encode(normalizeName(newUpdatedRecord.getPriezvisko())),newUpdatedRecord.getObec(),newUpdatedRecord.getUlica(), nanoId);
+        if(Objects.equals(checkTwo.getPrve_meno(), newUpdatedRecord.getPrve_meno()) && Objects.equals(checkTwo.getPriezvisko(), newUpdatedRecord.getPriezvisko())
+                && Objects.equals(checkTwo.getObec(), newUpdatedRecord.getObec()) && Objects.equals(checkTwo.getUlica(), newUpdatedRecord.getUlica())){ //kontrola či nové dáta sa úplne nezhodujú so starými dátami
+            return "Not updated, same record for the updated record found";
+        }
+        else {
+            pohladavkaJPA.saveAndFlush(newUpdatedRecord);
+        }
         return "Sucessfuly updated ";
     }
 
@@ -233,6 +247,43 @@ public class PohladavkaService {
             }
         }
         return new String(chars).substring(0, i);
+    }
 
+    public int calculateMatch(FindRequestDTO list, PohladavkaEntity entity, int celkova_zhoda) {
+
+        if (list.meno() != null) {
+            meno_zhoda = FuzzySearch.ratio(list.meno(), entity.getPrve_meno());
+            System.out.println(meno_zhoda);
+        }
+
+        if (list.priezvisko() != null) {
+            priezvisko_zhoda = FuzzySearch.ratio(list.priezvisko(), entity.getPriezvisko());
+            System.out.println(priezvisko_zhoda);
+        }
+
+        if (list.obec() != null && !list.obec().equals("")) {
+            obec_zhoda = FuzzySearch.weightedRatio(list.obec(), entity.getObec());
+            System.out.println(obec_zhoda);
+        }
+        if (list.ulica() != null && !list.ulica().equals("")) {
+            ulica_zhoda = FuzzySearch.weightedRatio(list.ulica(), entity.getUlica());
+            System.out.println(ulica_zhoda);
+        }
+        celkova_zhoda = Math.min(meno_zhoda, priezvisko_zhoda);
+
+        if (list.obec() != null && !list.obec().equals("")) {
+            System.out.println(list.obec());
+            celkova_zhoda = Math.min(celkova_zhoda, obec_zhoda);
+        }
+
+        if (list.ulica() != null && !list.ulica().equals("")) {
+            System.out.println(list.ulica());
+            celkova_zhoda = Math.min(celkova_zhoda, ulica_zhoda);
+        }
+        if (Objects.equals(list.nanoId(), entity.getNanoId())) {
+            System.out.println(list.nanoId());
+            celkova_zhoda = 100;
+        }
+        return celkova_zhoda;
     }
 }

@@ -29,13 +29,16 @@
                 resultsContainer.appendChild(div);
             });
 
-            document.querySelector('form').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const data = e.target.querySelector("button").getAttribute("data-nanoId")
-                let recordId = JSON.parse(decodeURI(data));
-                        let query = Object.entries(recordId).map(entry => `${entry[0]}=${encodeURI(entry[1])}`).join("&")
-                        window.location.href = 'changePage.html?'+ query;
-            })
+            const buttons = document.querySelectorAll('.changeBtn');
+            buttons.forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    const data = e.target.getAttribute('data-nanoId');
+                    let recordId = JSON.parse(decodeURI(data));
+                    let query = Object.entries(recordId).map(entry => `${entry[0]}=${encodeURI(entry[1])}`).join('&');
+                    window.location.href = 'changePage.html?' + query;
+                });
+            });
         }
     });
 </script>
