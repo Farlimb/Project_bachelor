@@ -171,10 +171,10 @@ public class PohladavkaService {
             newUpdatedRecord.setUlica(list.ulica());
         }
 
-        System.out.println(newUpdatedRecord.getPrve_meno());
-        System.out.println(newUpdatedRecord.getPriezvisko());
-        System.out.println(newUpdatedRecord.getObec());
-        System.out.println(newUpdatedRecord.getUlica());
+//        System.out.println(newUpdatedRecord.getPrve_meno());
+//        System.out.println(newUpdatedRecord.getPriezvisko());
+//        System.out.println(newUpdatedRecord.getObec());
+//        System.out.println(newUpdatedRecord.getUlica());
         PohladavkaEntity checkTwo = pohladavkaJPA.findFirstByPrveMenoUpraveneKolnerAndPriezviskoUpraveneKolnerAndObecAndUlicaAndNanoId(colner.encode(normalizeName(newUpdatedRecord.getPrve_meno())), colner.encode(normalizeName(newUpdatedRecord.getPriezvisko())),newUpdatedRecord.getObec(),newUpdatedRecord.getUlica(), nanoId);
         System.out.println(checkTwo);
         if(checkTwo!=null) {
