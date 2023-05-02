@@ -5,8 +5,11 @@ import com.example.bakalarka_jpa.dto.FindRequestDTO;
 import com.example.bakalarka_jpa.dto.FindResponseDTO;
 import com.example.bakalarka_jpa.dto.UpdateRequestDTO;
 import com.example.bakalarka_jpa.services.PohladavkaService;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 @RestController
@@ -17,22 +20,24 @@ public class PohladavkaController {
         this.pohladavkaService = pohladavkaService;
     }
 
-    @PostMapping("/find") //Web funkcia na vyhľadanie podľa poslaných vstupných údajov
+    @PostMapping(value="/find",produces = MediaType.APPLICATION_JSON_VALUE) //Web funkcia na vyhľadanie podľa poslaných vstupných údajov
     public Set<FindResponseDTO> findByparams(@RequestBody FindRequestDTO params){
         return pohladavkaService.FindByParams(params);
     }
 
-    @PostMapping("/update") //Web funkcia na vyhľadanie a vytvorenie nového záznamu podľa poslaných vstupných údajov s tým istým identifikátorom
-    public String updateByparams(@RequestBody UpdateRequestDTO params){
-        return pohladavkaService.UpdateByParams(params);
+    @PostMapping(value="/update",produces = MediaType.APPLICATION_JSON_VALUE) //Web funkcia na vyhľadanie a vytvorenie nového záznamu podľa poslaných vstupných údajov s tým istým identifikátorom
+    @ResponseBody
+    public Set<FindResponseDTO> updateByparams(@RequestBody UpdateRequestDTO params){
+
+         return Collections.singleton(pohladavkaService.UpdateByParams(params));
     }
 
-    @PostMapping("/create") //Web funkcia na vytvorenie nového záznamu podľa poslaných vstupných údajov
+    @PostMapping(value="/create",produces = MediaType.APPLICATION_JSON_VALUE) //Web funkcia na vytvorenie nového záznamu podľa poslaných vstupných údajov
     public Set<FindResponseDTO> createByparams(@RequestBody CreateRequestDTO params){
-        return pohladavkaService.CreateByParams(params);
+        return Collections.singleton(pohladavkaService.CreateByParams(params));
     }
 
-    @PostMapping("/delete") //Web funkcia na vymazanie nového záznamu podľa poslaných vstupných údajov
+    @PostMapping(value="/delete",produces = MediaType.APPLICATION_JSON_VALUE) //Web funkcia na vymazanie nového záznamu podľa poslaných vstupných údajov
     public String deleteByparams(@RequestBody FindRequestDTO params){
         return pohladavkaService.DeleteByParams(params);
     }

@@ -8,9 +8,19 @@ import com.example.bakalarka_jpa.dto.UpdateRequestDTO;
 import com.example.bakalarka_jpa.entities.PohladavkaEntity;
 import com.example.bakalarka_jpa.interfaces.PohladavkaJPA;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
+import org.apache.commons.codec.binary.StringUtils;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.apache.commons.codec.language.ColognePhonetic;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestClientResponseException;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.util.*;
+
+import static org.springframework.http.HttpStatus.NOT_ACCEPTABLE;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
 public class PohladavkaService {
@@ -39,14 +49,13 @@ public class PohladavkaService {
     }
 
 
-    public Set<FindResponseDTO> CreateByParams(CreateRequestDTO list){   // funkcia na vytvorenie nového záznamu dlžníka
+    public FindResponseDTO CreateByParams(CreateRequestDTO list){   // funkcia na vytvorenie nového záznamu dlžníka
 
-        if(list.meno() == null || list.priezvisko() == null || list.obec() == null || list.ulica() == null){    //Kontrola či nevyrábame neúplný záznam
-            return null;
+        if((isBlank(list.meno())) || isBlank(list.priezvisko()) || isBlank(list.obec()) || isBlank(list.ulica())){    //Kontrola či nevyrábame neúplný záznam
+            throw new ResponseStatusException(NOT_FOUND, "Unable to find resource");
         }
-
         if(list.meno().isEmpty() || list.priezvisko().isEmpty() || list.obec().isEmpty() || list.ulica().isEmpty()){ //Kontrola či nevyrábame neúplný záznam
-            return null;
+            throw new ResponseStatusException(NOT_FOUND, "Unable to find resource");
         }
 
         //vytváranie nového záznamu s aplikáciou úprav vstupu
@@ -63,10 +72,9 @@ public class PohladavkaService {
         newRecord.setObec(list.obec());
         newRecord.setUlica(list.ulica());
 
-        //pohladavkaJPA.saveAndFlush(newRecord)
-        Set<FindResponseDTO> setEntit = new HashSet<>();
-        setEntit.add(new FindResponseDTO(newRecord.getPrve_meno(), newRecord.getPriezvisko(), newRecord.getUlica(), newRecord.getObec(), 100, newRecord.getNanoId()));
-        return setEntit;}
+        pohladavkaJPA.saveAndFlush(newRecord);
+        return new FindResponseDTO(newRecord.getPrve_meno(), newRecord.getPriezvisko(), newRecord.getUlica(), newRecord.getObec(), 100, newRecord.getNanoId());
+    }
     public Set<FindResponseDTO> FindByParams(FindRequestDTO list) { //funkcia na vyhľadanie záznamu alebo záznamov sediacich pre vstupné údaje
         //deklarácia premien pre ďalšiu prácu s nimi
         String meno_upravene = normalizeName(list.meno());
@@ -106,25 +114,27 @@ public class PohladavkaService {
     }
 
 
-    public String UpdateByParams(UpdateRequestDTO list) { //funkcia na zaevidovanie zmeny
+    public FindResponseDTO UpdateByParams(UpdateRequestDTO list) { //funkcia na zaevidovanie zmeny
         String meno_Kolner = colner.encode(normalizeName(list.meno()));
         String priezvisko_Kolner = colner.encode(normalizeName(list.priezvisko()));
         nanoId = list.nanoId();
         PohladavkaEntity result = pohladavkaJPA.findFirstByPrveMenoUpraveneKolnerAndPriezviskoUpraveneKolnerAndObecAndUlicaAndNanoId(meno_Kolner, priezvisko_Kolner,list.obec(),list.ulica(), nanoId);
         PohladavkaEntity checkUp = pohladavkaJPA.findFirstByPrveMenoUpraveneKolnerAndPriezviskoUpraveneKolnerAndObecAndUlicaAndNanoId(colner.encode(normalizeName(list.menoUprava())), colner.encode(normalizeName(list.priezviskoUprava())),list.obecUprava(),list.ulicaUprava(), nanoId);
         System.out.println(result);
+        System.out.println(checkUp);
         if(checkUp != null){ //kontrola či nové dáta sa úplne nezhodujú so starými dátami
-            return "Not updated, same record for the updated record found";
+            throw new ResponseStatusException(NOT_ACCEPTABLE, "Record of person already exists!");
         }
 
         if(result == null){ //kontrola či staré dáta existujú
-            return "Not updated, couldn't find record";
+            throw new ResponseStatusException(NOT_ACCEPTABLE, "Unable to find resource");
         }
 
         //Vytváranie nového záznamu s aplikáciou úprav vstupu
         PohladavkaEntity newUpdatedRecord = new PohladavkaEntity();
 
         newUpdatedRecord.setNanoId(list.nanoId()); //Zaevidovanie toho istého nanoId keďže ide o tú istú osobu, zabezpečuje evidenciu dlžníka s meniacimi sa údajmi
+
         if(!list.menoUprava().isEmpty()) {
             newUpdatedRecord.setPrve_meno(list.menoUprava());
             newUpdatedRecord.setPrveMenoUpravene(normalizeName(list.menoUprava()));
@@ -166,14 +176,15 @@ public class PohladavkaService {
         System.out.println(newUpdatedRecord.getObec());
         System.out.println(newUpdatedRecord.getUlica());
         PohladavkaEntity checkTwo = pohladavkaJPA.findFirstByPrveMenoUpraveneKolnerAndPriezviskoUpraveneKolnerAndObecAndUlicaAndNanoId(colner.encode(normalizeName(newUpdatedRecord.getPrve_meno())), colner.encode(normalizeName(newUpdatedRecord.getPriezvisko())),newUpdatedRecord.getObec(),newUpdatedRecord.getUlica(), nanoId);
-        if(Objects.equals(checkTwo.getPrve_meno(), newUpdatedRecord.getPrve_meno()) && Objects.equals(checkTwo.getPriezvisko(), newUpdatedRecord.getPriezvisko())
-                && Objects.equals(checkTwo.getObec(), newUpdatedRecord.getObec()) && Objects.equals(checkTwo.getUlica(), newUpdatedRecord.getUlica())){ //kontrola či nové dáta sa úplne nezhodujú so starými dátami
-            return "Not updated, same record for the updated record found";
+        System.out.println(checkTwo);
+        if(checkTwo!=null) {
+            if (Objects.equals(checkTwo.getPrve_meno(), newUpdatedRecord.getPrve_meno()) && Objects.equals(checkTwo.getPriezvisko(), newUpdatedRecord.getPriezvisko())
+                    && Objects.equals(checkTwo.getObec(), newUpdatedRecord.getObec()) && Objects.equals(checkTwo.getUlica(), newUpdatedRecord.getUlica())) { //kontrola či nové dáta sa úplne nezhodujú so starými dátami
+                throw new ResponseStatusException(NOT_ACCEPTABLE, "Unable to find resource");
+            }
         }
-        else {
-            pohladavkaJPA.saveAndFlush(newUpdatedRecord);
-        }
-        return "Sucessfuly updated ";
+        pohladavkaJPA.saveAndFlush(newUpdatedRecord);
+        return new FindResponseDTO(newUpdatedRecord.getPrve_meno(),newUpdatedRecord.getPriezvisko(),newUpdatedRecord.getUlica(),newUpdatedRecord.getObec(),100,newUpdatedRecord.getNanoId());
     }
 
 
@@ -285,5 +296,9 @@ public class PohladavkaService {
             celkova_zhoda = 100;
         }
         return celkova_zhoda;
+    }
+
+    private boolean isBlank(String string){
+        return string==null || string.trim().isEmpty();
     }
 }

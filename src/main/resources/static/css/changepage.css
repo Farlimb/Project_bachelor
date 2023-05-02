@@ -4,22 +4,21 @@
 /**::before {*/
 /*    box-sizing: border-box;*/
 /*}*/
-.container{
-    width: 98vw;
-    height: 98vh;
-    display: grid;
-    grid-template-rows: repeat(10,1fr);
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
-    justify-items: start;
-    align-items: center;
-    grid-gap: 0.5rem;
-}
-
+/*.container{*/
+/*    width: 98vw;*/
+/*    height: 98vh;*/
+/*    display: grid;*/
+/*    grid-template-rows: repeat(10,1fr);*/
+/*    grid-template-columns: repeat(7, 1fr);*/
+/*    justify-items: start;*/
+/*    align-items: center;*/
+/*    grid-gap: 0.5rem;*/
+/*}*/
 .item-1{
     width: 90%;
     height: 70%;
-    grid-row: 5/6;
-    grid-column: 3/5;
+    grid-row: 3/4;
+    grid-column: 2/4;
     border-radius: 0.5rem;
     font-family:  sans-serif;
     font-style: normal;
@@ -29,8 +28,8 @@
     font-family:  sans-serif;
     font-style: normal;
     font-size: 1.5vw;
-    grid-row: 4/5;
-    grid-column:  3/4;
+    grid-row: 2;
+    grid-column: 2;
     justify-self:start;
     align-self:end;
 }
@@ -38,8 +37,8 @@
 .item-2{
     width: 90%;
     height: 70%;
-    grid-row: 5/6;
-    grid-column: 5/7;
+    grid-row: 3;
+    grid-column: 4/6;
     border-radius: 0.5rem;
     font-family:  sans-serif;
     font-style: normal;
@@ -49,8 +48,8 @@
     font-family:  sans-serif;
     font-style: normal;
     font-size: 1.5vw;
-    grid-row: 4/5;
-    grid-column: 5/7;
+    grid-row: 2;
+    grid-column: 4;
     justify-self:start;
     align-self:end;
 }
@@ -58,7 +57,7 @@
 .item-3{
     width: 90%;
     height: 70%;
-    grid-row: 5/6;
+    grid-row: 3/6;
     grid-column: 7/9;
     border-radius: 0.5rem;
     font-family:  sans-serif;
@@ -78,8 +77,8 @@
 .item-4{
     width: 90%;
     height: 70%;
-    grid-row: 7/8;
-    grid-column: 4/6;
+    grid-row: 5/6;
+    grid-column: 2/4;
     border-radius: 0.5rem;
     font-family:  sans-serif;
     font-style: normal;
@@ -89,16 +88,16 @@
     font-family:  sans-serif;
     font-style: normal;
     font-size: 1.5vw;
-    grid-row: 6/7;
-    grid-column: 4/6;
+    grid-row: 4;
+    grid-column: 2;
     justify-self:start;
     align-self:end;
 }
 .item-5{
     width: 90%;
     height: 70%;
-    grid-row: 7/8;
-    grid-column: 6/8;
+    grid-row: 5;
+    grid-column: 4/6;
     border-radius: 0.5rem;
     font-family:  sans-serif;
     font-style: normal;
@@ -108,32 +107,43 @@
     font-family:  sans-serif;
     font-style: normal;
     font-size: 1.5vw;
-    grid-row: 6/7;
-    grid-column: 6/8;
+    grid-row: 4;
+    grid-column: 4;
     justify-self:start;
     align-self:end;
 }
-.item-button{
-    border-radius: 0.5vw;
-    font-family: sans-serif;
+.change-button{
+    font-family:  sans-serif;
     font-style: normal;
-    font-size: 1.5vw;
-    width: 7vw;
+    font-size: 1vw;
+    border-radius: 0.5vw;
     height: 3vw;
-    grid-row: 8;
-    grid-column: 5/7;
     align-self: center;
     justify-self: center;
+    grid-row: 6;
+    grid-column:3/5;
     background: #83242A;
     color: white;
 }
 
+.item-button{
+    font-family:  sans-serif;
+    font-style: normal;
+    font-size: 1vw;
+    border-radius: 0.5vw;
+    height: 3vw;
+    align-self: end;
+    justify-self: end;
+    grid-row: 6;
+    grid-column:6;
+    background: #83242A;
+    color: white;
+}
 .item-button:hover{
     border-radius: 0.5vw;
     background-color:black;
 }
 
-/* The container <div> - needed to position the dropdown content */
 .dropbtn {
     border-radius: 1vw;
     background-color: #83242A;
@@ -144,13 +154,15 @@
     border: none;
     cursor: pointer;
 }
-
+.item-riadok1{
+    row-span: 1;
+    column-span: 1;
+}
 .dropdown {
     border-radius: 1vw;
     min-width: 11vw;
     max-width: 11vw;
-    grid-row: 1;
-    grid-column: 10;
+    float: right;
     display: inline-block;
 }
 
@@ -187,8 +199,86 @@
     border-radius: 1vw;
     background-color: black;
 }
+table {
+    flex-wrap: wrap;
+    border-collapse: separate;
+    margin-left: auto;
+    margin-right: auto;
+    width: 90%;
+    align-self: center;
+    border-spacing: 0 1em;
+    font-size: 1.2vw;
+}
 
+/* Style the table headers */
+th {
+    font-weight: bold;
+}
 
+/* Style the table data cells */
+td {
+    border-top: solid 1px #000;
+    background-color: #D9D9D9;
+    border-bottom: 1px solid black;
+    padding-top: .5em;
+    padding-bottom: .5em;
+    font-size: 1.2vw;
+
+}
+
+.rowBorderStart {
+    border-right: 0;
+    border-top-left-radius: 0.5vw;
+    border-bottom-left-radius: 0.5vw;
+}
+
+.rowBorderMiddle {
+    border-left: 0;
+    border-right: 0;
+}
+
+.rowBorderEnd {
+    border-left: 0;
+    border-top-right-radius: 0.5vw;
+    border-bottom-right-radius: 0.5vw;
+}
+
+.changeBtn{
+    border-radius: 0.5vw;
+    font-family: sans-serif;
+    font-style: normal;
+    font-size: 1.2vw;
+    grid-row: 8;
+    grid-column: 5/7;
+    align-self: center;
+    justify-self: center;
+    background: #83242A;
+    color: white;
+}
+
+.changeBtn:hover{
+    border-radius: 0.5vw;
+    background-color: black;
+}
+
+.resultContainer{
+    text-align: center;
+}
+
+.bigText{
+    font-size: 1.5rem;
+    text-align: center;
+}
+.container{
+    width: auto;
+    height: auto;
+    display: grid;
+    grid-template-rows: repeat(6,1fr);
+    grid-template-columns: repeat(6, 1fr);
+    justify-items: start;
+    align-items: center;
+    grid-gap: 0.5rem;
+}
 /* body {*/
 /*    margin: 0;*/
 /*}*/

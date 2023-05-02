@@ -1,35 +1,41 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<html lang="en">
+<html lang="sk">
 <head>
     <title>Submit Data to JPA Server</title>
-    <link rel="stylesheet" href="css/stylesheet.css"/>
+    <link rel="stylesheet" href="css/createNew.css"/>
 </head>
 <body style="background-image: url('images/pexels-johannes-plenio-1103970.jpg');
     background-size: cover;">
-<h1>Submit Data to JPA Server</h1>
 <form class="container" action="http://localhost:8080/create" method="post">
-    <label for="meno">Meno:</label>
-    <input type="text" id="meno" name="meno" required>
-    <br>
+    <div class="dropdown">
+        <button class="dropbtn">Menu       ></button>
+        <div class="dropdown-content">
+            <a href="index.html">Main menu</a>
+            <a href="createnew.html">Create new record</a>
+        </div>
+    </div>
+    <label class = "item item-1-1" for="meno">First name</label>
+    <input class="item item-1" type="text" id="meno" name="meno" placeholder="Janko" required>
 
-    <label for="priezvisko">Priezvisko:</label>
-    <input type="text" id="priezvisko" name="priezvisko" required>
-    <br>
+    <label class = "item item-2-2" for="priezvisko">Second name</label>
+    <input class="item item-2" type="text" id="priezvisko" placeholder="Petrik" name="priezvisko" required>
 
-    <label for="obec">Obec:</label>
-    <input type="text" id="obec" name="obec" required>
-    <br>
+    <label for="obec" class = "item item-4-4" >City</label>
+    <input class="item item-4" type="text" id="obec" name="obec" placeholder="Michalovce" required>
 
-    <label for="ulica">Ulica:</label>
-    <input type="text" id="ulica" name="ulica" required>
-    <br>
-    <input type="submit" value="Create record with ID">
+    <label for="ulica" class = "item item-5-5">Street</label>
+    <input class="item item-5" type="text" id="ulica" name="ulica" placeholder="Miestna 9" required>
+    <input type="submit" value="Create new record with ID" class="item-button">
 </form>
 
 <script>
     document.querySelector('form').addEventListener('submit', async (e) => {
         e.preventDefault();
+        if(document.getElementById('meno').value.trim().length === 0 && document.getElementById('priezvisko').value.trim().length === 0 && document.getElementById('ulica').value.trim().length === 0 && document.getElementById('obec').value.trim().length === 0){
+            alert( "Please fill in all the fields!" );
+        }
+        else {
         const meno = document.getElementById('meno').value;
         const priezvisko = document.getElementById('priezvisko').value;
         const ulica = document.getElementById('ulica').value;
@@ -55,9 +61,10 @@
                 window.location.href = 'searchResults.html';
             }
         } else {
-            alert('Person not found!');
+            alert('Error while creating record!');
         }
 
+    }
     });
 </script>
 </body>

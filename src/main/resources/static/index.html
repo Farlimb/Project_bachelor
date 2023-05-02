@@ -6,29 +6,32 @@
     <link rel="stylesheet" href="css/stylesheet.css"/>
 </head>
 <body style="background-image: url('images/pexels-johannes-plenio-1103970.jpg');
-    background-size: cover;">
-<h1>Submit Data to JPA Server</h1>
+    background-size: cover;
+background-repeat: no-repeat;">
+
 <form class="container" action="http://localhost:8080/find" method="post">
-    <label for="meno">Meno:</label>
-    <input type="text" id="meno" name="meno" required>
-    <br>
+    <div class="dropdown">
+    <button class="dropbtn">Menu       ></button>
+    <div class="dropdown-content">
+        <a href="index.html">Main menu</a>
+        <a href="createnew.html">Create new record</a>
+    </div>
+    </div>
+    <label class = "item item-1-1" for="meno">First name</label>
+    <input class="item item-1" type="text" id="meno" name="meno" placeholder="Janko" required>
 
-    <label for="priezvisko">Priezvisko:</label>
-    <input type="text" id="priezvisko" name="priezvisko" required>
-    <br>
+    <label class = "item item-2-2" for="priezvisko">Second name</label>
+    <input class="item item-2" type="text" id="priezvisko" placeholder="Petrik" name="priezvisko" required>
 
-    <label for="nanoId">Nano ID:</label>
-    <input type="text" id="nanoId" name="nanoId">
-    <br>
+    <label for="nanoId" class = "item item-3-3">Customer ID(Optional)</label>
+    <input class="item item-3" type="text" id="nanoId" placeholder="_EKzINeuiZeVPO1WVUlSL" name="nanoId">
 
-    <label for="obec">Obec:</label>
-    <input type="text" id="obec" name="obec">
-    <br>
+    <label for="obec" class = "item item-4-4" >City</label>
+    <input class="item item-4" type="text" id="obec" name="obec" placeholder="Michalovce">
 
-    <label for="ulica">Ulica:</label>
-    <input type="text" id="ulica" name="ulica">
-    <br>
-    <input type="submit" value="Submit">
+    <label for="ulica" class = "item item-5-5">Street</label>
+    <input class="item item-5" type="text" id="ulica" name="ulica" placeholder="Miestna 9">
+    <input type="submit" value="Find" class="item-button">
 </form>
 
 <script>
