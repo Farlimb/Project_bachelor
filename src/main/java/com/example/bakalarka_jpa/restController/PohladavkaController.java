@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -20,8 +21,13 @@ public class PohladavkaController {
     }
 
     @PostMapping(value="/find",produces = MediaType.APPLICATION_JSON_VALUE) //Web funkcia na vyhľadanie podľa poslaných vstupných údajov
-    public Set<FindResponseDTO> findByparams(@RequestBody FindRequestDTO params){
+    public List<FindResponseDTO> findByParams(@RequestBody FindRequestDTO params){
         return pohladavkaService.FindByParams(params);
+    }
+
+    @PostMapping(value="/findBest",produces = MediaType.APPLICATION_JSON_VALUE) //Web funkcia na vyhľadanie podľa poslaných vstupných údajov
+    public FindResponseDTO findByBestParams(@RequestBody FindRequestDTO params){
+        return pohladavkaService.FindBestByParams(params);
     }
 
     @PostMapping(value="/update",produces = MediaType.APPLICATION_JSON_VALUE) //Web funkcia na vyhľadanie a vytvorenie nového záznamu podľa poslaných vstupných údajov s tým istým identifikátorom

@@ -75,7 +75,8 @@ public class PohladavkaService {
         pohladavkaJPA.saveAndFlush(newRecord);
         return new FindResponseDTO(newRecord.getPrve_meno(), newRecord.getPriezvisko(), newRecord.getUlica(), newRecord.getObec(), 100, newRecord.getNanoId());
     }
-    public Set<FindResponseDTO> FindByParams(FindRequestDTO list) { //funkcia na vyhľadanie záznamu alebo záznamov sediacich pre vstupné údaje
+
+    public FindResponseDTO FindBestByParams(FindRequestDTO list) { //funkcia na vyhľadanie záznamu alebo záznamov sediacich pre vstupné údaje
         //deklarácia premien pre ďalšiu prácu s nimi
         String meno_upravene = normalizeName(list.meno());
         String priezvisko_upravene = normalizeName(list.priezvisko());
@@ -94,23 +95,70 @@ public class PohladavkaService {
         List<PohladavkaEntity> result = pohladavkaJPA.findAllByPrveMenoUpraveneKolnerAndPriezviskoUpraveneKolnerOrNanoId(meno_Kolner, priezvisko_Kolner, list.nanoId());
 
         //Set<FindResponseDTO> setEntit = new HashSet<>();
+        List<FindResponseDTO> sortedList =  new ArrayList<>();;
+        if(result!=null) {
+            for (PohladavkaEntity entity : result) {
+                celkova_zhoda = calculateMatch(list, entity, celkova_zhoda);
+                sortedList.add(new FindResponseDTO(entity.getPrve_meno(), entity.getPriezvisko(), entity.getUlica(), entity.getObec(), celkova_zhoda, entity.getNanoId()));
+            }
+        }
 
-        Set<FindResponseDTO> setEntit = new TreeSet<>(new Comparator<FindResponseDTO>() {
+        // sort setEntit in descending order based on celkova_zhoda
+        Collections.sort(sortedList, new Comparator<FindResponseDTO>() {
             @Override
             public int compare(FindResponseDTO o1, FindResponseDTO o2) {
                 return Double.compare(o2.match(), o1.match());
             }
         });
 
+        if (!sortedList.isEmpty()) {
+            return sortedList.get(0); // return the first (highest match) element of the sorted list
+        } else {
+            return null; // or return null if the list is empty
+        }
+    }
+
+
+    public List<FindResponseDTO> FindByParams(FindRequestDTO list) { //funkcia na vyhľadanie záznamu alebo záznamov sediacich pre vstupné údaje
+        //deklarácia premien pre ďalšiu prácu s nimi
+        String meno_upravene = normalizeName(list.meno());
+        String priezvisko_upravene = normalizeName(list.priezvisko());
+        String meno_Kolner = colner.encode(meno_upravene);
+        String priezvisko_Kolner = colner.encode(priezvisko_upravene);
+
+        if(meno_Kolner==null){ //musí sa zedifinovať ináč neprejde funckia findallby
+            meno_Kolner = "x";
+        }
+
+        if(priezvisko_Kolner==null){ //musí sa zedifinovať ináč neprejde funckia findallby
+            priezvisko_Kolner = "x";
+        }
+
+        //Vyhľadanie všetkých záznamov s rovnakou fonetickou stopou prvého mena a priezviska
+        List<PohladavkaEntity> result = pohladavkaJPA.findAllByPrveMenoUpraveneKolnerAndPriezviskoUpraveneKolnerOrNanoId(meno_Kolner, priezvisko_Kolner, list.nanoId());
+
+        //Set<FindResponseDTO> setEntit = new HashSet<>();
+        List<FindResponseDTO> sortedList =  new ArrayList<>();;
         if(result!=null) {
-            for (PohladavkaEntity entity : result) { //Cyklus na automatický výpočet zhody so vstupnými údajmi, ak existujú
+            for (PohladavkaEntity entity : result) {
                 celkova_zhoda = calculateMatch(list, entity, celkova_zhoda);
-                setEntit.add(new FindResponseDTO(entity.getPrve_meno(), entity.getPriezvisko(), entity.getUlica(), entity.getObec(), celkova_zhoda, entity.getNanoId()));
+                sortedList.add(new FindResponseDTO(entity.getPrve_meno(), entity.getPriezvisko(), entity.getUlica(), entity.getObec(), celkova_zhoda, entity.getNanoId()));
             }
         }
 
+        // sort setEntit in descending order based on celkova_zhoda
+        Collections.sort(sortedList, new Comparator<FindResponseDTO>() {
+            @Override
+            public int compare(FindResponseDTO o1, FindResponseDTO o2) {
+                return Double.compare(o2.match(), o1.match());
+            }
+        });
 
-        return setEntit;
+        if (!sortedList.isEmpty()) {
+            return sortedList; // return the first (highest match) element of the sorted list
+        } else {
+            return null; // or return null if the list is empty
+        }
     }
 
 
@@ -204,7 +252,6 @@ public class PohladavkaService {
 
     public String normalizeName(String zaznam) { //funkcia na úpravu mien a priezvisk pre fonetický algoritmus
         if (zaznam != null) {
-
             zaznam = zaznam.replace("{", "");
             zaznam = zaznam.replace("}", "");
             zaznam = zaznam.replace("Sz", "S");
@@ -239,6 +286,7 @@ public class PohladavkaService {
             zaznam = zaznam.replace('Ŕ', 'R');
             zaznam = zaznam.replace('ŕ', 'r');
             zaznam = removeDuplicates(zaznam);
+            zaznam = zaznam.trim();
         }
         return zaznam;
     }

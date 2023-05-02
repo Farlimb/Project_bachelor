@@ -1,7 +1,6 @@
 package com.example.bakalarka_jpa;
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.example.bakalarka_jpa.dto.FindRequestDTO;
-import com.example.bakalarka_jpa.dto.FindResponseDTO;
 import com.example.bakalarka_jpa.entities.PohladavkaEntity;
 import com.example.bakalarka_jpa.services.PohladavkaService;
 import org.apache.commons.codec.language.ColognePhonetic;
@@ -16,8 +15,11 @@ class bakalarkaJpaApplicationTests {
     private PohladavkaEntity entity = new PohladavkaEntity();
     private final ColognePhonetic colner = new ColognePhonetic();
     private int celkova_zhoda=0;
+
     @Test
     void normalizePriezviskoTestTrue() {
+        assert pohladavkaService.normalizeName(null) == null;
+        assert pohladavkaService.normalizeName("   ").equals("");
         assert pohladavkaService.normalizeName("").equals("");
         assert pohladavkaService.normalizeName("Gyori").equals("Dori");
         assert pohladavkaService.normalizeName("Andrássy").equals("Andrásy");
@@ -31,6 +33,7 @@ class bakalarkaJpaApplicationTests {
         assert pohladavkaService.normalizeName("Zsigmondy").equals("Zigmondy");
         assert pohladavkaService.normalizeName("Országh").equals("Orságh");
     }
+
     @Test
     void normalizePriezviskoTestFalse() {
         assert !pohladavkaService.normalizeName("Horváth").equals("Horvát");
@@ -79,7 +82,6 @@ class bakalarkaJpaApplicationTests {
 
     @Test
     void calculateMatchTest() {
-
         entity.setPrve_meno("");
         entity.setPriezvisko("");
         entity.setUlica("");
