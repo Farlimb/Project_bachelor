@@ -4,15 +4,21 @@ import com.example.bakalarka_jpa.dto.FindRequestDTO;
 import com.example.bakalarka_jpa.entities.PohladavkaEntity;
 import com.example.bakalarka_jpa.services.PohladavkaService;
 import org.apache.commons.codec.language.ColognePhonetic;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.jupiter.api.Test;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import static org.openqa.selenium.remote.http.Route.options;
 
 @SpringBootTest
 class bakalarkaJpaApplicationTests {
     @Autowired
     private PohladavkaService pohladavkaService;
-    private PohladavkaEntity entity = new PohladavkaEntity();
+    private PohladavkaEntity zaznam1 = new PohladavkaEntity();
     private final ColognePhonetic colner = new ColognePhonetic();
     private int celkova_zhoda=0;
 
@@ -72,7 +78,7 @@ class bakalarkaJpaApplicationTests {
         assert colner.encode(pohladavkaService.normalizeName("Ďuri")).equals(colner.encode(pohladavkaService.normalizeName("Gyori")));
         assert colner.encode(pohladavkaService.normalizeName("Lukácsová")).equals(colner.encode(pohladavkaService.normalizeName("Lukáčová")));
         assert colner.encode(pohladavkaService.normalizeName("Némethová")).equals(colner.encode(pohladavkaService.normalizeName("Németová")));
-        assert colner.encode(pohladavkaService.normalizeName("Cséfalvay")).equals(colner.encode(pohladavkaService.normalizeName("Čéfalvai")));
+        assert colner.encode(pohladavkaService.normalizeName("Cséfalvay")).equals(colner.encode(pohladavkaService.normalizeName("Čéfalvaj")));
         assert colner.encode(pohladavkaService.normalizeName("Csaba")).equals(colner.encode(pohladavkaService.normalizeName("Čaba")));
         assert colner.encode(pohladavkaService.normalizeName("Zsuzsanna")).equals(colner.encode(pohladavkaService.normalizeName("Žužanna")));
         assert colner.encode(pohladavkaService.normalizeName("Nyúlová")).equals(colner.encode(pohladavkaService.normalizeName("Ňúlová")));
@@ -82,165 +88,187 @@ class bakalarkaJpaApplicationTests {
 
     @Test
     void calculateMatchTest() {
-        entity.setPrve_meno("");
-        entity.setPriezvisko("");
-        entity.setUlica("");
-        entity.setObec("");
-        entity.setNanoId(NanoIdUtils.randomNanoId());
-        FindRequestDTO FindRequestDTO = new FindRequestDTO("Filip", "Kušnír", "Gomenzkého 41", "Košice", NanoIdUtils.randomNanoId());
-        celkova_zhoda = pohladavkaService.calculateMatch(FindRequestDTO,entity, celkova_zhoda);
+        zaznam1.setPrve_meno(null);
+        zaznam1.setPriezvisko("");
+        zaznam1.setUlica("");
+        zaznam1.setObec("");
+        zaznam1.setNanoId(NanoIdUtils.randomNanoId());
+        FindRequestDTO zaznam2 = new FindRequestDTO("Filip", "Kušnír", "Gomenzkého 41", "Košice", NanoIdUtils.randomNanoId());
+        celkova_zhoda = pohladavkaService.calculateMatch(zaznam2, zaznam1, celkova_zhoda);
         System.out.println("Celkova zhoda = "  + celkova_zhoda);
         assert celkova_zhoda == 0;
 
-        entity.setPrve_meno("Filip");
-        entity.setPriezvisko("Kušnír");
-        entity.setUlica("Komenského 41");
-        entity.setObec("Košice");
-        entity.setNanoId(NanoIdUtils.randomNanoId());
-        FindRequestDTO = new FindRequestDTO("", "", "", "", NanoIdUtils.randomNanoId());
-        celkova_zhoda = pohladavkaService.calculateMatch(FindRequestDTO,entity, celkova_zhoda);
+
+        zaznam1.setPrve_meno("Filip");
+        zaznam1.setPriezvisko("Kušnír");
+        zaznam1.setUlica("Háj 42");
+        zaznam1.setObec("Košice");
+        zaznam1.setNanoId(NanoIdUtils.randomNanoId());
+        zaznam2 = new FindRequestDTO("Filip", "Kušnír", "Háj 72/42", "Košice", NanoIdUtils.randomNanoId());
+        celkova_zhoda = pohladavkaService.calculateMatch(zaznam2, zaznam1, celkova_zhoda);
+        System.out.println("celkova zhoda = " + celkova_zhoda);
+        System.out.println(zaznam1.getUlica());
+        assert celkova_zhoda > 80;
+
+        zaznam1.setPrve_meno("");
+        zaznam1.setPriezvisko("");
+        zaznam1.setUlica("");
+        zaznam1.setObec("");
+        zaznam1.setNanoId(NanoIdUtils.randomNanoId());
+        zaznam2 = new FindRequestDTO("Filip", "Kušnír", "Gomenzkého 41", "Košice", NanoIdUtils.randomNanoId());
+        celkova_zhoda = pohladavkaService.calculateMatch(zaznam2, zaznam1, celkova_zhoda);
         System.out.println("Celkova zhoda = "  + celkova_zhoda);
         assert celkova_zhoda == 0;
 
-        entity.setPrve_meno("");
-        entity.setPriezvisko("Kušnír");
-        entity.setUlica("Komenského 41");
-        entity.setObec("Košice");
-        entity.setNanoId(NanoIdUtils.randomNanoId());
-        FindRequestDTO = new FindRequestDTO("Filip", "Kušnír", "Gomenzkého 41", "Košice", NanoIdUtils.randomNanoId());
-        celkova_zhoda = pohladavkaService.calculateMatch(FindRequestDTO,entity, celkova_zhoda);
+        zaznam1.setPrve_meno("Filip");
+        zaznam1.setPriezvisko("Kušnír");
+        zaznam1.setUlica("Komenského 41");
+        zaznam1.setObec("Košice");
+        zaznam1.setNanoId(NanoIdUtils.randomNanoId());
+        zaznam2 = new FindRequestDTO("", "", "", "", NanoIdUtils.randomNanoId());
+        celkova_zhoda = pohladavkaService.calculateMatch(zaznam2, zaznam1, celkova_zhoda);
         System.out.println("Celkova zhoda = "  + celkova_zhoda);
         assert celkova_zhoda == 0;
 
-        entity.setPrve_meno("Filip");
-        entity.setPriezvisko("Kušnír");
-        entity.setUlica("Komenského 41");
-        entity.setObec("Košice");
-        entity.setNanoId(NanoIdUtils.randomNanoId());
-        FindRequestDTO = new FindRequestDTO("Filip", "Kušnír", "Gomenzkého 41", "Košice", NanoIdUtils.randomNanoId());
-        celkova_zhoda = pohladavkaService.calculateMatch(FindRequestDTO,entity, celkova_zhoda);
+        zaznam1.setPrve_meno("");
+        zaznam1.setPriezvisko("Kušnír");
+        zaznam1.setUlica("Komenského 41");
+        zaznam1.setObec("Košice");
+        zaznam1.setNanoId(NanoIdUtils.randomNanoId());
+        zaznam2 = new FindRequestDTO("Filip", "Kušnír", "Gomenzkého 41", "Košice", NanoIdUtils.randomNanoId());
+        celkova_zhoda = pohladavkaService.calculateMatch(zaznam2, zaznam1, celkova_zhoda);
+        System.out.println("Celkova zhoda = "  + celkova_zhoda);
+        assert celkova_zhoda == 0;
+
+        zaznam1.setPrve_meno("Filip");
+        zaznam1.setPriezvisko("Kušnír");
+        zaznam1.setUlica("Komenského 41");
+        zaznam1.setObec("Košice");
+        zaznam1.setNanoId(NanoIdUtils.randomNanoId());
+        zaznam2 = new FindRequestDTO("Filip", "Kušnír", "Gomenzkého 41", "Košice", NanoIdUtils.randomNanoId());
+        celkova_zhoda = pohladavkaService.calculateMatch(zaznam2, zaznam1, celkova_zhoda);
         System.out.println("Celkova zhoda = "  + celkova_zhoda);
         assert celkova_zhoda > 80;
 
-        entity.setPrve_meno("Filip");
-        entity.setPriezvisko("Kušnír");
-        entity.setUlica("Komenského 41");
-        entity.setObec("Košice");
-        entity.setNanoId(NanoIdUtils.randomNanoId());
-        FindRequestDTO = new FindRequestDTO("Bruno", "Sabadoš", "Komenského 40", "Košice", NanoIdUtils.randomNanoId());
-        celkova_zhoda = pohladavkaService.calculateMatch(FindRequestDTO,entity, celkova_zhoda);
+        zaznam1.setPrve_meno("Filip");
+        zaznam1.setPriezvisko("Kušnír");
+        zaznam1.setUlica("Komenského 41");
+        zaznam1.setObec("Košice");
+        zaznam1.setNanoId(NanoIdUtils.randomNanoId());
+        zaznam2 = new FindRequestDTO("Bruno", "Sabadoš", "Komenského 40", "Košice", NanoIdUtils.randomNanoId());
+        celkova_zhoda = pohladavkaService.calculateMatch(zaznam2, zaznam1, celkova_zhoda);
         System.out.println("celkova zhoda = " + celkova_zhoda);
         assert celkova_zhoda == 0;
 
-        entity.setPrve_meno("Filip");               //test na zmenené osobné údaje ale identifikovaný ako ten istý človek cez nanoId
-        entity.setPriezvisko("Kušnír");
-        entity.setUlica("Komenského 41");
-        entity.setObec("Košice");
-        entity.setNanoId(NanoIdUtils.randomNanoId());
-        FindRequestDTO = new FindRequestDTO("Bruno", "Sabadoš", "Tomášikova 30", "Bratislava", entity.getNanoId());
-        celkova_zhoda = pohladavkaService.calculateMatch(FindRequestDTO,entity, celkova_zhoda);
+        zaznam1.setPrve_meno("Filip");               //test na zmenené osobné údaje ale identifikovaný ako ten istý človek cez nanoId
+        zaznam1.setPriezvisko("Kušnír");
+        zaznam1.setUlica("Komenského 41");
+        zaznam1.setObec("Košice");
+        zaznam1.setNanoId(NanoIdUtils.randomNanoId());
+        zaznam2 = new FindRequestDTO("Bruno", "Sabadoš", "Tomášikova 30", "Bratislava", zaznam1.getNanoId());
+        celkova_zhoda = pohladavkaService.calculateMatch(zaznam2, zaznam1, celkova_zhoda);
         System.out.println("celkova zhoda = " + celkova_zhoda);
         assert celkova_zhoda == 100;
 
-        entity.setPrve_meno("Filip");
-        entity.setPriezvisko("Kušnír");
-        entity.setUlica("Komenského 41");
-        entity.setObec("Košice");
-        entity.setNanoId(NanoIdUtils.randomNanoId());
-        FindRequestDTO = new FindRequestDTO("Filip", "Kušnír", "Komenského 41", "Bratislava", NanoIdUtils.randomNanoId());
-        celkova_zhoda =pohladavkaService.calculateMatch(FindRequestDTO,entity, celkova_zhoda);
+        zaznam1.setPrve_meno("Filip");
+        zaznam1.setPriezvisko("Kušnír");
+        zaznam1.setUlica("Komenského 41");
+        zaznam1.setObec("Košice");
+        zaznam1.setNanoId(NanoIdUtils.randomNanoId());
+        zaznam2 = new FindRequestDTO("Filip", "Kušnír", "Komenského 41", "Bratislava", NanoIdUtils.randomNanoId());
+        celkova_zhoda =pohladavkaService.calculateMatch(zaznam2, zaznam1, celkova_zhoda);
         System.out.println("celkova zhoda = " + celkova_zhoda);
         assert celkova_zhoda > 0;
 
-        entity.setPrve_meno("Filip");
-        entity.setPriezvisko("Kušnír");
-        entity.setUlica("Komenského 41");
-        entity.setObec("Košice");
-        entity.setNanoId(NanoIdUtils.randomNanoId());
-            FindRequestDTO = new FindRequestDTO("Filip", "Kušnír", "Kotbutská 41", "Košice", NanoIdUtils.randomNanoId());
-        celkova_zhoda = pohladavkaService.calculateMatch(FindRequestDTO,entity, celkova_zhoda);
+        zaznam1.setPrve_meno("Filip");
+        zaznam1.setPriezvisko("Kušnír");
+        zaznam1.setUlica("Komenského 41");
+        zaznam1.setObec("Košice");
+        zaznam1.setNanoId(NanoIdUtils.randomNanoId());
+            zaznam2 = new FindRequestDTO("Filip", "Kušnír", "Kotbutská 41", "Košice", NanoIdUtils.randomNanoId());
+        celkova_zhoda = pohladavkaService.calculateMatch(zaznam2, zaznam1, celkova_zhoda);
         System.out.println("celkova zhoda = " + celkova_zhoda);
         assert celkova_zhoda < 80;
 
-        entity.setPrve_meno("Atilla");
-        entity.setPriezvisko("Grónsky");
-        entity.setUlica("Komenského 41");
-        entity.setObec("Košice");
-        entity.setNanoId(NanoIdUtils.randomNanoId());
-        FindRequestDTO = new FindRequestDTO("Atila", "Grúnsky", "Komenského 41", "Košice", NanoIdUtils.randomNanoId());
-        celkova_zhoda = pohladavkaService.calculateMatch(FindRequestDTO,entity, celkova_zhoda);
+        zaznam1.setPrve_meno("Atilla");
+        zaznam1.setPriezvisko("Grónsky");
+        zaznam1.setUlica("Komenského 41");
+        zaznam1.setObec("Košice");
+        zaznam1.setNanoId(NanoIdUtils.randomNanoId());
+        zaznam2 = new FindRequestDTO("Atila", "Grúnsky", "Komenského 41", "Košice", NanoIdUtils.randomNanoId());
+        celkova_zhoda = pohladavkaService.calculateMatch(zaznam2, zaznam1, celkova_zhoda);
         System.out.println("celkova zhoda = " +celkova_zhoda);
         assert celkova_zhoda > 80;
 
-        entity.setPrve_meno("Tomáš");
-        entity.setPriezvisko("Kováč");
-        entity.setUlica("Madridská 22");
-        entity.setObec("Košice");
-        entity.setNanoId(NanoIdUtils.randomNanoId());
-        FindRequestDTO = new FindRequestDTO("Tomáš", "Kováč", "Madridská", "Košice", NanoIdUtils.randomNanoId());
-        celkova_zhoda = pohladavkaService.calculateMatch(FindRequestDTO,entity, celkova_zhoda);
+        zaznam1.setPrve_meno("Tomáš");
+        zaznam1.setPriezvisko("Kováč");
+        zaznam1.setUlica("Madridská 22");
+        zaznam1.setObec("Košice");
+        zaznam1.setNanoId(NanoIdUtils.randomNanoId());
+        zaznam2 = new FindRequestDTO("Tomáš", "Kováč", "Madridská", "Košice", NanoIdUtils.randomNanoId());
+        celkova_zhoda = pohladavkaService.calculateMatch(zaznam2, zaznam1, celkova_zhoda);
         System.out.println("celkova zhoda = " +celkova_zhoda);
         assert celkova_zhoda > 80;
 
-        entity.setPrve_meno("Filip");
-        entity.setPriezvisko("Kovács");
-        entity.setUlica("Nám. Osloboditeľov 13");
-        entity.setObec("Košice");
-        entity.setNanoId(NanoIdUtils.randomNanoId());
-        FindRequestDTO = new FindRequestDTO("Filip", "Kovács", "Námestie Osloboditeľov 13", "Košice", NanoIdUtils.randomNanoId());
-        celkova_zhoda = pohladavkaService.calculateMatch(FindRequestDTO,entity, celkova_zhoda);
+        zaznam1.setPrve_meno("Filip");
+        zaznam1.setPriezvisko("Kovács");
+        zaznam1.setUlica("Nám. Osloboditeľov 13");
+        zaznam1.setObec("Košice");
+        zaznam1.setNanoId(NanoIdUtils.randomNanoId());
+        zaznam2 = new FindRequestDTO("Filip", "Kovács", "Námestie Osloboditeľov 13", "Košice", NanoIdUtils.randomNanoId());
+        celkova_zhoda = pohladavkaService.calculateMatch(zaznam2, zaznam1, celkova_zhoda);
         System.out.println("celkova zhoda = " +celkova_zhoda);
         assert celkova_zhoda > 80;
 
-        entity.setPrve_meno("Tomáš");
-        entity.setPriezvisko("Kováč");
-        entity.setUlica("Kpt.Nálepku");
-        entity.setObec("Košice");
-        entity.setNanoId(NanoIdUtils.randomNanoId());
-        FindRequestDTO = new FindRequestDTO("Tomáš", "Kováč", "Kapitána Nálepku", "Košice", NanoIdUtils.randomNanoId());
-        celkova_zhoda = pohladavkaService.calculateMatch(FindRequestDTO,entity, celkova_zhoda);
+        zaznam1.setPrve_meno("Tomáš");
+        zaznam1.setPriezvisko("Kováč");
+        zaznam1.setUlica("Kpt.Nálepku");
+        zaznam1.setObec("Košice");
+        zaznam1.setNanoId(NanoIdUtils.randomNanoId());
+        zaznam2 = new FindRequestDTO("Tomáš", "Kováč", "Kapitána Nálepku", "Košice", NanoIdUtils.randomNanoId());
+        celkova_zhoda = pohladavkaService.calculateMatch(zaznam2, zaznam1, celkova_zhoda);
         System.out.println("celkova zhoda = " +celkova_zhoda);
         assert celkova_zhoda > 80;
 
-        entity.setPrve_meno("Tomáš");
-        entity.setPriezvisko("Kovács");
-        entity.setUlica("Komenského 41");
-        entity.setObec("Košice");
-        entity.setNanoId(NanoIdUtils.randomNanoId());
-        FindRequestDTO = new FindRequestDTO("Tomáš", "Kováč", "Komenského 41", "Košice", NanoIdUtils.randomNanoId());
-        celkova_zhoda = pohladavkaService.calculateMatch(FindRequestDTO,entity, celkova_zhoda);
+        zaznam1.setPrve_meno("Tomáš");
+        zaznam1.setPriezvisko("Kovács");
+        zaznam1.setUlica("Komenského 41");
+        zaznam1.setObec("Košice");
+        zaznam1.setNanoId(NanoIdUtils.randomNanoId());
+        zaznam2 = new FindRequestDTO("Tomáš", "Kováč", "Komenského 41", "Košice", NanoIdUtils.randomNanoId());
+        celkova_zhoda = pohladavkaService.calculateMatch(zaznam2, zaznam1, celkova_zhoda);
         System.out.println("celkova zhoda = " +celkova_zhoda);
         assert celkova_zhoda < 80;
 
 
 
-        entity.setPrve_meno("Atila");
-        entity.setPriezvisko("Grónsky");
-        entity.setUlica("Komenského 41");
-        entity.setObec("Košice");
-        entity.setNanoId(NanoIdUtils.randomNanoId());
-        FindRequestDTO = new FindRequestDTO("Atila", "Grónsky", "Tomášikova 41", "Košice", NanoIdUtils.randomNanoId());
-        celkova_zhoda = pohladavkaService.calculateMatch(FindRequestDTO,entity, celkova_zhoda);
+        zaznam1.setPrve_meno("Atila");
+        zaznam1.setPriezvisko("Grónsky");
+        zaznam1.setUlica("Komenského 41");
+        zaznam1.setObec("Košice");
+        zaznam1.setNanoId(NanoIdUtils.randomNanoId());
+        zaznam2 = new FindRequestDTO("Atila", "Grónsky", "Tomášikova 41", "Košice", NanoIdUtils.randomNanoId());
+        celkova_zhoda = pohladavkaService.calculateMatch(zaznam2, zaznam1, celkova_zhoda);
         System.out.println("celkova zhoda = " +celkova_zhoda);
         assert celkova_zhoda < 80;
 
-        entity.setPrve_meno("Peter");
-        entity.setPriezvisko("Grónsky");
-        entity.setUlica("Komenského 41");
-        entity.setObec("Košice");
-        entity.setNanoId(NanoIdUtils.randomNanoId());
-        FindRequestDTO = new FindRequestDTO("Jano", "Grónsky", "Tomášikova 41", "Košice", NanoIdUtils.randomNanoId());
-        celkova_zhoda = pohladavkaService.calculateMatch(FindRequestDTO,entity, celkova_zhoda);
+        zaznam1.setPrve_meno("Peter");
+        zaznam1.setPriezvisko("Grónsky");
+        zaznam1.setUlica("Komenského 41");
+        zaznam1.setObec("Košice");
+        zaznam1.setNanoId(NanoIdUtils.randomNanoId());
+        zaznam2 = new FindRequestDTO("Jano", "Grónsky", "Tomášikova 41", "Košice", NanoIdUtils.randomNanoId());
+        celkova_zhoda = pohladavkaService.calculateMatch(zaznam2, zaznam1, celkova_zhoda);
         System.out.println("celkova zhoda = " +celkova_zhoda);
         assert celkova_zhoda < 80;
 
-        entity.setPrve_meno("Peter");
-        entity.setPriezvisko("Grónsky");
-        entity.setUlica("Komenského 41");
-        entity.setObec("Košice");
-        entity.setNanoId(NanoIdUtils.randomNanoId());
-        FindRequestDTO = new FindRequestDTO("Jano", "Grónsky", "Tomášikova 41", "Košice", NanoIdUtils.randomNanoId());
-        celkova_zhoda = pohladavkaService.calculateMatch(FindRequestDTO,entity, celkova_zhoda);
+        zaznam1.setPrve_meno("Peter");
+        zaznam1.setPriezvisko("Grónsky");
+        zaznam1.setUlica("Komenského 41");
+        zaznam1.setObec("Košice");
+        zaznam1.setNanoId(NanoIdUtils.randomNanoId());
+        zaznam2 = new FindRequestDTO("Jano", "Grónsky", "Tomášikova 41", "Košice", NanoIdUtils.randomNanoId());
+        celkova_zhoda = pohladavkaService.calculateMatch(zaznam2, zaznam1, celkova_zhoda);
         System.out.println("celkova zhoda = " +celkova_zhoda);
         assert celkova_zhoda < 80;
     }

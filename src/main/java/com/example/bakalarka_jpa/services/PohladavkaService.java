@@ -29,10 +29,10 @@ public class PohladavkaService {
     public PohladavkaService(PohladavkaJPA pohladavkaJPA) {
         this.pohladavkaJPA = pohladavkaJPA;
     }
-    private int meno_zhoda;
-    private int priezvisko_zhoda;
-    private int obec_zhoda;
-    private int ulica_zhoda;
+    private int meno_zhoda = 0;
+    private int priezvisko_zhoda = 0;
+    private int obec_zhoda = 0;
+    private int ulica_zhoda = 0;
     private int celkova_zhoda = 0;
     private String nanoId;
 
@@ -112,9 +112,14 @@ public class PohladavkaService {
         });
 
         if (!sortedList.isEmpty()) {
-            return sortedList.get(0); // return the first (highest match) element of the sorted list
+            if(sortedList.get(0).match()>=80) {
+                return sortedList.get(0); // Vracia prvý záznam s najvyššou zhodou, ak je nad 80%
+            }
+            else{
+                return null;
+            }
         } else {
-            return null; // or return null if the list is empty
+            return null; // Vracia null ak nie sú splnené podmienky
         }
     }
 
@@ -157,7 +162,7 @@ public class PohladavkaService {
         if (!sortedList.isEmpty()) {
             return sortedList; // return the first (highest match) element of the sorted list
         } else {
-            return null; // or return null if the list is empty
+            throw new ResponseStatusException(NOT_FOUND, "Unable to find resource"); // or return null if the list is empty
         }
     }
 
@@ -310,32 +315,32 @@ public class PohladavkaService {
 
     public int calculateMatch(FindRequestDTO list, PohladavkaEntity entity, int celkova_zhoda) {
 
-        if (list.meno() != null) {
+        if (list.meno() != null && entity.getPrve_meno() !=null) {
             meno_zhoda = FuzzySearch.ratio(list.meno(), entity.getPrve_meno());
             System.out.println(meno_zhoda);
         }
 
-        if (list.priezvisko() != null) {
+        if (list.priezvisko() != null && entity.getPriezvisko() !=null) {
             priezvisko_zhoda = FuzzySearch.ratio(list.priezvisko(), entity.getPriezvisko());
             System.out.println(priezvisko_zhoda);
         }
 
-        if (list.obec() != null && !list.obec().equals("")) {
+        if (list.obec() != null && !list.obec().equals("") && entity.getObec() !=null && !entity.getObec().equals("")) {
             obec_zhoda = FuzzySearch.weightedRatio(list.obec(), entity.getObec());
             System.out.println(obec_zhoda);
         }
-        if (list.ulica() != null && !list.ulica().equals("")) {
+        if (list.ulica() != null && !list.ulica().equals("") && entity.getUlica() !=null && !entity.getUlica().equals("")) {
             ulica_zhoda = FuzzySearch.weightedRatio(list.ulica(), entity.getUlica());
             System.out.println(ulica_zhoda);
         }
         celkova_zhoda = Math.min(meno_zhoda, priezvisko_zhoda);
 
-        if (list.obec() != null && !list.obec().equals("")) {
+        if (list.obec() != null && !list.obec().equals("") && entity.getObec() !=null && !entity.getObec().equals("")) {
             System.out.println(list.obec());
             celkova_zhoda = Math.min(celkova_zhoda, obec_zhoda);
         }
 
-        if (list.ulica() != null && !list.ulica().equals("")) {
+        if (list.ulica() != null && !list.ulica().equals("") && entity.getUlica() !=null && !entity.getUlica().equals("")){
             System.out.println(list.ulica());
             celkova_zhoda = Math.min(celkova_zhoda, ulica_zhoda);
         }

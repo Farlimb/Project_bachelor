@@ -30,41 +30,50 @@
 </form>
 
 <script>
+
+    function containsNumbers(str) {
+        return /\d/.test(str);
+    }
+
     document.querySelector('form').addEventListener('submit', async (e) => {
         e.preventDefault();
-        if(document.getElementById('meno').value.trim().length === 0 && document.getElementById('priezvisko').value.trim().length === 0 && document.getElementById('ulica').value.trim().length === 0 && document.getElementById('obec').value.trim().length === 0){
-            alert( "Please fill in all the fields!" );
+        if(containsNumbers(document.getElementById('meno').value.trim()) || containsNumbers(document.getElementById('priezvisko').value.trim()) || containsNumbers(document.getElementById('obec').value.trim())){
+            alert( "Numbers are not allowed in certain field!" );
         }
         else {
-        const meno = document.getElementById('meno').value;
-        const priezvisko = document.getElementById('priezvisko').value;
-        const ulica = document.getElementById('ulica').value;
-        const obec = document.getElementById('obec').value;
-        const payload = {meno, priezvisko, ulica, obec};
-        console.log(payload);
-        const response = await fetch('http://localhost:8080/create', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        });
-        if (response.ok) {
-            const data = await response.json();
-            if (Array.isArray(data) && data.length === 0) {
-                console.log('Response data is empty array. Not redirecting to new page.');
-                alert('Person not found!');
+            if (document.getElementById('meno').value.trim().length === 0 && document.getElementById('priezvisko').value.trim().length === 0 && document.getElementById('ulica').value.trim().length === 0 && document.getElementById('obec').value.trim().length === 0) {
+                alert("Please fill in all the fields!");
             } else {
-                console.log(data.nanoId);
-                console.log("som tu!!!!!");
-                localStorage.setItem('responseData', JSON.stringify(data));
-                window.location.href = 'searchResults.html';
-            }
-        } else {
-            alert('Error while creating record!');
-        }
+                const meno = document.getElementById('meno').value;
+                const priezvisko = document.getElementById('priezvisko').value;
+                const ulica = document.getElementById('ulica').value;
+                const obec = document.getElementById('obec').value;
+                const payload = {meno, priezvisko, ulica, obec};
+                console.log(payload);
+                const response = await fetch('http://localhost:8080/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (Array.isArray(data) && data.length === 0) {
+                        console.log('Response data is empty array. Not redirecting to new page.');
+                        alert('Person not found!');
+                    } else {
+                        console.log(data.nanoId);
+                        console.log("som tu!!!!!");
+                        localStorage.setItem('responseData', JSON.stringify(data));
+                        window.location.href = 'searchResults.html';
+                    }
+                } else {
+                    alert('Error while creating record!');
+                }
 
-    }
+            }
+        }
     });
 </script>
 </body>
