@@ -61,11 +61,11 @@ public class PohladavkaService {
         //vytváranie nového záznamu s aplikáciou úprav vstupu
         PohladavkaEntity newRecord = new PohladavkaEntity();
         newRecord.setNanoId(NanoIdUtils.randomNanoId());
-        newRecord.setPrve_meno(list.meno());
+        newRecord.setPrve_meno(capitalize(list.meno()));
         newRecord.setPrveMenoUpravene(normalizeName(list.meno()));
         newRecord.setPrveMenoUpraveneKolner(colner.encode(normalizeName(list.meno())));
 
-        newRecord.setPriezvisko(list.priezvisko());
+        newRecord.setPriezvisko(capitalize(list.priezvisko()));
         newRecord.setPriezviskoUpravene(normalizeName(list.priezvisko()));
         newRecord.setPriezviskoUpraveneKolner(colner.encode(normalizeName(list.priezvisko())));
 
@@ -126,6 +126,7 @@ public class PohladavkaService {
 
     public List<FindResponseDTO> FindByParams(FindRequestDTO list) { //funkcia na vyhľadanie záznamu alebo záznamov sediacich pre vstupné údaje
         //deklarácia premien pre ďalšiu prácu s nimi
+
         String meno_upravene = normalizeName(list.meno());
         String priezvisko_upravene = normalizeName(list.priezvisko());
         String meno_Kolner = colner.encode(meno_upravene);
@@ -147,7 +148,9 @@ public class PohladavkaService {
         if(result!=null) {
             for (PohladavkaEntity entity : result) {
                 celkova_zhoda = calculateMatch(list, entity, celkova_zhoda);
-                sortedList.add(new FindResponseDTO(entity.getPrve_meno(), entity.getPriezvisko(), entity.getUlica(), entity.getObec(), celkova_zhoda, entity.getNanoId()));
+                if (celkova_zhoda > 30) {
+                    sortedList.add(new FindResponseDTO(entity.getPrve_meno(), entity.getPriezvisko(), entity.getUlica(), entity.getObec(), celkova_zhoda, entity.getNanoId()));
+                }
             }
         }
 
@@ -257,19 +260,9 @@ public class PohladavkaService {
 
     public String normalizeName(String zaznam) { //funkcia na úpravu mien a priezvisk pre fonetický algoritmus
         if (zaznam != null) {
+            zaznam = capitalize(zaznam);
             zaznam = zaznam.replace("{", "");
             zaznam = zaznam.replace("}", "");
-            zaznam = zaznam.replace("Sz", "S");
-            zaznam = zaznam.replace("sz", "s");
-            zaznam = zaznam.replace("gy", "d");
-            zaznam = zaznam.replace("Gy", "D");
-            zaznam = zaznam.replace("Dzs", "Dz");
-            zaznam = zaznam.replace("Zs", "Z");
-            zaznam = zaznam.replace("zs", "z");
-            zaznam = zaznam.replace("Cs", "C");
-            zaznam = zaznam.replace("cs", "c");
-            zaznam = zaznam.replace("cz", "c");
-            zaznam = zaznam.replace("Cz", "C");
             zaznam = zaznam.replace("Ď", "D");
             zaznam = zaznam.replace("ď", "d");
             zaznam = zaznam.replace("Č", "C");
@@ -290,12 +283,27 @@ public class PohladavkaService {
             zaznam = zaznam.replace("Dž", "Dz");
             zaznam = zaznam.replace('Ŕ', 'R');
             zaznam = zaznam.replace('ŕ', 'r');
+            zaznam = zaznam.replace("Sz", "S");
+            zaznam = zaznam.replace("sz", "s");
+            zaznam = zaznam.replace("gy", "d");
+            zaznam = zaznam.replace("Gy", "D");
+            zaznam = zaznam.replace("Dzs", "Dz");
+            zaznam = zaznam.replace("Zs", "Z");
+            zaznam = zaznam.replace("zs", "z");
+            zaznam = zaznam.replace("Cs", "C");
+            zaznam = zaznam.replace("cs", "c");
+            zaznam = zaznam.replace("cz", "c");
+            zaznam = zaznam.replace("Cz", "C");
             zaznam = removeDuplicates(zaznam);
             zaznam = zaznam.trim();
         }
         return zaznam;
     }
-
+    public static String capitalize(String str)
+    {
+        if (str == null || str.length() == 0) return str;
+        return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
+    }
 
     public String removeDuplicates(String string) { //funkcia na odstránenie písmen v mene a priezvisku ktoré sa opakujú
         if (string == null) {
@@ -316,12 +324,12 @@ public class PohladavkaService {
     public int calculateMatch(FindRequestDTO list, PohladavkaEntity entity, int celkova_zhoda) {
 
         if (list.meno() != null && entity.getPrve_meno() !=null) {
-            meno_zhoda = FuzzySearch.ratio(list.meno(), entity.getPrve_meno());
+            meno_zhoda = FuzzySearch.ratio(capitalize(list.meno()), entity.getPrve_meno());
             System.out.println(meno_zhoda);
         }
 
         if (list.priezvisko() != null && entity.getPriezvisko() !=null) {
-            priezvisko_zhoda = FuzzySearch.ratio(list.priezvisko(), entity.getPriezvisko());
+            priezvisko_zhoda = FuzzySearch.ratio(capitalize(list.priezvisko()), entity.getPriezvisko());
             System.out.println(priezvisko_zhoda);
         }
 

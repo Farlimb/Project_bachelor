@@ -18,10 +18,10 @@ background-repeat: no-repeat;">
     </div>
     </div>
     <label class = "item item-1-1" for="meno">First name</label>
-    <input class="item item-1" type="text" id="meno" name="meno" placeholder="Janko" required>
+    <input class="item item-1" type="text" id="meno" name="meno" placeholder="Janko">
 
     <label class = "item item-2-2" for="priezvisko">Second name</label>
-    <input class="item item-2" type="text" id="priezvisko" placeholder="Petrik" name="priezvisko" required>
+    <input class="item item-2" type="text" id="priezvisko" placeholder="Petrik" name="priezvisko">
 
     <label for="nanoId" class = "item item-3-3">Customer ID(Optional)</label>
     <input class="item item-3" type="text" id="nanoId" placeholder="_EKzINeuiZeVPO1WVUlSL" name="nanoId">
@@ -35,37 +35,50 @@ background-repeat: no-repeat;">
 </form>
 
 <script>
+    function containsNumbers(str) {
+        return /\d/.test(str);
+    }
+
     document.querySelector('form').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const meno = document.getElementById('meno').value;
-        const priezvisko = document.getElementById('priezvisko').value;
-        const nanoId = document.getElementById('nanoId').value;
-        const ulica = document.getElementById('ulica').value;
-        const obec = document.getElementById('obec').value;
-        const payload = {meno, priezvisko, nanoId, ulica, obec};
-        console.log(payload);
-        const response = await fetch('http://localhost:8080/find', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        });
-        if (response.ok) {
-            const data = await response.json();
-            if (Array.isArray(data) && data.length === 0) {
-                console.log('Response data is empty array. Not redirecting to new page.');
-                alert('Person not found!');
-            } else {
-                console.log(data.nanoId);
-                console.log("som tu!!!!!");
-                localStorage.setItem('responseData', JSON.stringify(data));
-                window.location.href = 'searchResults.html';
-            }
-        } else {
-            alert('Person not found!');
+        if(containsNumbers(document.getElementById('meno').value.trim()) || containsNumbers(document.getElementById('priezvisko').value.trim()) || containsNumbers(document.getElementById('obec').value.trim())){
+            alert( "Numbers are not allowed in certain field!" );
         }
-    });
+        else {
+            if ((document.getElementById('meno').value.trim().length === 0 && document.getElementById('priezvisko').value.trim().length === 0)  && document.getElementById('nanoId').value.trim().length === 0) {
+                alert("Please fill in either id or other information!");
+            } else {
+
+            const meno = document.getElementById('meno').value;
+            const priezvisko = document.getElementById('priezvisko').value;
+            const nanoId = document.getElementById('nanoId').value;
+            const ulica = document.getElementById('ulica').value;
+            const obec = document.getElementById('obec').value;
+            const payload = {meno, priezvisko, nanoId, ulica, obec};
+            console.log(payload);
+            const response = await fetch('http://localhost:8080/find', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+            if (response.ok) {
+                const data = await response.json();
+                if (Array.isArray(data) && data.length === 0) {
+                    console.log('Response data is empty array. Not redirecting to new page.');
+                    alert('Person not found!');
+                } else {
+                    console.log(data.nanoId);
+                    console.log("som tu!!!!!");
+                    localStorage.setItem('responseData', JSON.stringify(data));
+                    window.location.href = 'searchResults.html';
+                }
+            } else {
+                alert('Person not found!');
+            }
+        }
+    }});
 </script>
 </body>
 </html>

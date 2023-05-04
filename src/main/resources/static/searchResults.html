@@ -44,12 +44,12 @@ background-repeat: no-repeat;">
             responseData.forEach(data => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                        <td class="rowBorderStart">${data.meno}</td>
-                        <td class='rowBorderMiddle'>${data.priezvisko}</td>
-                        <td class='rowBorderMiddle'>${data.nanoId}</td>
-                        <td class='rowBorderMiddle'>${data.obec}</td>
-                        <td class='rowBorderMiddle'>${data.ulica}</td>
-                        <td class='rowBorderMiddle'>${data["match"]}</td>
+                        <td class='rowBorderStar meno'>${data.meno}</td>
+                        <td class='rowBorderMiddle priezvisko'>${data.priezvisko}</td>
+                        <td class='rowBorderMiddle nanoId'>${data.nanoId}</td>
+                        <td class='rowBorderMiddle obec'>${data.obec}</td>
+                        <td class='rowBorderMiddle ulica'>${data.ulica}</td>
+                        <td class='rowBorderMiddle match'>${data["match"]}</td>
                         <td class="rowBorderEnd"><button type="button" class="changeBtn" data-nanoId="${encodeURI(JSON.stringify(data))}">Edit</button></td>
                     `;
                 tbody.appendChild(tr);

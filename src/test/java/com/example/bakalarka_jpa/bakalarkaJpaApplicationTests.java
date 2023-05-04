@@ -3,6 +3,7 @@ import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.example.bakalarka_jpa.dto.FindRequestDTO;
 import com.example.bakalarka_jpa.entities.PohladavkaEntity;
 import com.example.bakalarka_jpa.services.PohladavkaService;
+import me.xdrop.fuzzywuzzy.FuzzySearch;
 import org.apache.commons.codec.language.ColognePhonetic;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -72,6 +73,8 @@ class bakalarkaJpaApplicationTests {
 
     @Test
     void normalizeAndPhoneticTest() {
+        System.out.println(FuzzySearch.ratio("Skuskajóžef","SkuskaJózsef"));
+        System.out.println(FuzzySearch.ratio("Gyula","Ďula"));
         assert colner.encode(pohladavkaService.normalizeName("")).equals(colner.encode(pohladavkaService.normalizeName("")));
         assert colner.encode(pohladavkaService.normalizeName("Horváth")).equals(colner.encode(pohladavkaService.normalizeName("Horvát")));
         assert colner.encode(pohladavkaService.normalizeName("Kovács")).equals(colner.encode(pohladavkaService.normalizeName("Kováč")));
