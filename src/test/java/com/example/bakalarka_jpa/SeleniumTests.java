@@ -32,8 +32,18 @@ public class SeleniumTests {
 
     @Test public void uprava(){
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofMillis(500) /*timeout in seconds*/);
-        DeleteByParams(wait, "Fehervári", "Kovács", "Ružomberok", "Vimislená 2");
-        DeleteByParams(wait, "Fehervári", "Kovács", "Ružomberok", "Vimislená 2");
+        DeleteByParams(wait,"SkuskaJózsef", "Gyula", "Bratislava", "Moskovská 2");
+        DeleteByParams(wait,"SkuskaJóžef", "Ďula", "Košice", "nahodnaulica 4");
+        DeleteByParams(wait,"SkuskaJózsef", "Gyula", "Ružemberok", "Moskovenská 2");
+        DeleteByParams(wait,"SkuskaJóžef", "Ďula", "Košice - Západ", "Letná 9");
+        DeleteByParams(wait,"SkuskaJózsef", "Gyula", "Košice", "Kotbuská 8");
+        DeleteByParams(wait,"SkuskaJóžef", "Ďula", "Košice", "Tomášikova 4");
+        DeleteByParams(wait,"SkuskaJózsef", "Gyula", "Bratislava", "Moskovská 2");
+        DeleteByParams(wait,"SkuskaJóžef", "Ďula", "Košice", "nahodnaulica 4");
+        DeleteByParams(wait,"SkuskaJózsef", "Gyula", "Ružemberok", "Moskovenská 2");
+        DeleteByParams(wait,"SkuskaJóžef", "Ďula", "Košice - Západ", "Letná 9");
+        DeleteByParams(wait,"SkuskaJózsef", "Gyula", "Košice", "Kotbuská 8");
+        DeleteByParams(wait,"SkuskaJóžef", "Ďula", "Košice", "Tomášikova 4");
     }
     @Test
     public void verifyCreateAndDelete(){
@@ -110,12 +120,14 @@ public class SeleniumTests {
 
         CreateByParams("Tomasz", "Gyula", "Košice", "Moskovská 2");
         CreateByParams("Tomáš", "Ďula", "Kosice", "Moskovská 2/4");
+        CreateByParams("Tomáš", "Ďula", "Stará Ľubovňa", "Moskovská 2/4");
 
         findByParams("Tomasz", "Gyula","Košice","Moskovská 2","");
         match = Integer.parseInt(driver.findElement(By.cssSelector("tbody tr:first-child td.match")).getText());
         match2 = Integer.parseInt(driver.findElement(By.cssSelector("tbody tr:nth-child(2) td.match")).getText());
         assert match == 100;
         assert match2 == 55;
+        DeleteByParams(wait,"Tomáš", "Ďula", "Levice", "Moskovská 2/4");
         DeleteByParams(wait, "Tomasz", "Gyula", "Košice", "Moskovská 2");
         DeleteByParams(wait, "Tomáš", "Ďula", "Kosice", "Moskovská 2/4");
 

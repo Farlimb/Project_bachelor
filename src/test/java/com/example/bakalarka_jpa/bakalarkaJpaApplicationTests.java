@@ -73,6 +73,8 @@ class bakalarkaJpaApplicationTests {
 
     @Test
     void normalizeAndPhoneticTest() {
+        //System.out.println(FuzzySearch.tok("Skuskajóžef","SkuskaJózsef"));
+        System.out.println(FuzzySearch.ratio("Gyula","Ďula"));
         System.out.println(FuzzySearch.ratio("Skuskajóžef","SkuskaJózsef"));
         System.out.println(FuzzySearch.ratio("Gyula","Ďula"));
         assert colner.encode(pohladavkaService.normalizeName("")).equals(colner.encode(pohladavkaService.normalizeName("")));
