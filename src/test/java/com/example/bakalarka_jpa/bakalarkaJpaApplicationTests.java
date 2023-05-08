@@ -5,15 +5,9 @@ import com.example.bakalarka_jpa.entities.PohladavkaEntity;
 import com.example.bakalarka_jpa.services.PohladavkaService;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import org.apache.commons.codec.language.ColognePhonetic;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import static org.openqa.selenium.remote.http.Route.options;
 
 @SpringBootTest
 class bakalarkaJpaApplicationTests {
@@ -25,6 +19,10 @@ class bakalarkaJpaApplicationTests {
 
     @Test
     void normalizePriezviskoTestTrue() {
+        System.out.println(FuzzySearch.partialRatio("Čsl. Armády 103","Československej Armády 103"));
+        System.out.println(FuzzySearch.weightedRatio("Čsl. Armády 103","Československej Armády 103"));
+
+        System.out.println(FuzzySearch.weightedRatio("Ľ. Štúra 11","Ľudovíta Štúra 12"));
         assert pohladavkaService.normalizeName(null) == null;
         assert pohladavkaService.normalizeName("   ").equals("");
         assert pohladavkaService.normalizeName("").equals("");

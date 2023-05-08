@@ -8,19 +8,13 @@ import com.example.bakalarka_jpa.dto.UpdateRequestDTO;
 import com.example.bakalarka_jpa.entities.PohladavkaEntity;
 import com.example.bakalarka_jpa.interfaces.PohladavkaJPA;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
-import org.apache.commons.codec.binary.StringUtils;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.apache.commons.codec.language.ColognePhonetic;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
-import static org.springframework.http.HttpStatus.NOT_ACCEPTABLE;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
 
 @Service
 public class PohladavkaService {
@@ -42,10 +36,10 @@ public class PohladavkaService {
         //Vyhľadanie konkrétneho záznamu aj s jeho ID v databáze
 
         if(toDeleteRecord == null){ //Vrátenie chybovej hlášky ak záznam nebol nájdený
-            return "Couldn't find record";
+            throw new ResponseStatusException(NOT_FOUND, "Unable to find resource");
         }
         pohladavkaJPA.deleteById(toDeleteRecord.getId());  //vymazanie záznamu na základe ID v databáze
-        return "Successfully deleted the record";
+        throw new ResponseStatusException(ACCEPTED, "Successfully deleted");
     }
 
 
