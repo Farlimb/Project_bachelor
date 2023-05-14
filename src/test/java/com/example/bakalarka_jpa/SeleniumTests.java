@@ -105,6 +105,31 @@ public class SeleniumTests {
         assert "http://localhost:8080/index.html".equals(driver.getCurrentUrl());
     }
     @Test
+    public void updateTest(){
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofMillis(500));
+        CreateByParams("Fehervári", "Kováč", "Ružomberok", "Vymyslená 2");
+        findByParams("Fehervári", "Kováč", "Ružomberok", "Vymyslená 2","");
+        var edit = driver.findElement(By.cssSelector("tbody tr:first-child td.rowBorderEnd button.changeBtn"));
+        edit.click();
+        wait.until(ExpectedConditions.titleIs("Selected Record"));
+        var id = driver.findElement(By.id("nanoId")).getText();
+        WebElement nameInput = driver.findElement(By.id("meno"));
+        WebElement priezviskoInput = driver.findElement(By.id("priezvisko"));
+        WebElement obecInput = driver.findElement(By.id("obec"));
+        WebElement ulicaInput = driver.findElement(By.id("ulica"));
+        nameInput.sendKeys("skuskaMeno");
+        priezviskoInput.sendKeys("skuskaPriezvisko");
+        var changeRecordBtn = driver.findElement(By.cssSelector("change-button"));
+        changeRecordBtn.click();
+        findByParams("", "", "", "",id);
+        var text = driver.findElements(By.cssSelector("tbody tr:nth-child(1) td.match")).isEmpty();
+        assert !text;
+        text = driver.findElements(By.cssSelector("tbody tr:nth-child(2) td.match")).isEmpty();
+        assert text;
+        DeleteByParams(wait, "Fehervári", "Kovács", "Ružomberok", "Vymyslená 2");
+        DeleteByParams(wait, "skuskaMeno", "skuskaPriezvisko", "Ružomberok", "Vymyslená 2");
+    }
+    @Test
     public void verifySearch(){
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofMillis(500));
         CreateByParams("Fehervári", "Kováč", "Ružomberok", "Vymyslená 2");

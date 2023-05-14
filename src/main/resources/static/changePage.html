@@ -61,24 +61,12 @@
             tr.innerHTML = `
                         <td class="rowBorderStart">${person.meno}</td>
                         <td class='rowBorderMiddle'>${person.priezvisko}</td>
-                        <td class='rowBorderMiddle'>${person.nanoId}</td>
+                        <td class='rowBorderMiddle' id="nanoId">${person.nanoId}</td>
                         <td class='rowBorderMiddle'>${person.obec}</td>
                         <td class='rowBorderEnd'>${person.ulica}</td>
 
                     `;
             tbody.appendChild(tr);
-                /*const resultsContainer = document.getElementById('selectedRecordContainer');
-                const div = document.createElement('form');
-                div.innerHTML = `
-                    <h2>${person.meno}</h2>
-                    <h2>${person.priezvisko}</h2>
-                    <p>${person.nanoId}</p>
-                    <p>${person.obec}</p>
-                    <p>${person.ulica}</p>
-                    <button type="submit" class="deleteBtn" data-nanoId="${encodeURI(JSON.stringify(person))}">Delete record</button>
-                `;
-
-                resultsContainer.appendChild(div);*/
         document.getElementById('inputForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             if(document.getElementById('meno').value.trim().length === 0 && document.getElementById('priezvisko').value.trim().length === 0 && document.getElementById('ulica').value.trim().length === 0 && document.getElementById('obec').value.trim().length === 0){

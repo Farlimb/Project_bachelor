@@ -299,7 +299,7 @@ public class PohladavkaService {
         return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
     }
 
-    public String removeDuplicates(String string) { //funkcia na odstránenie písmen v mene a priezvisku ktoré sa opakujú
+    public String removeDuplicates(String string) { //funkcia na odstránenie písmen v mene a priezvisku ktoré sa opakujú za sebou
         if (string == null) {
             return null;
         }
@@ -315,7 +315,7 @@ public class PohladavkaService {
         return new String(chars).substring(0, i);
     }
 
-    public int calculateMatch(FindRequestDTO list, PohladavkaEntity entity, int celkova_zhoda) {
+    public int calculateMatch(FindRequestDTO list, PohladavkaEntity entity, int celkova_zhoda) { //funkcia na výpočet celkovej zhody podľa nastavených vstupných hodnôt
 
         if (list.meno() != null && entity.getPrve_meno() !=null) {
             meno_zhoda = FuzzySearch.ratio(capitalize(list.meno()), entity.getPrve_meno());
@@ -335,7 +335,8 @@ public class PohladavkaService {
             ulica_zhoda = FuzzySearch.weightedRatio(list.ulica(), entity.getUlica());
             System.out.println(ulica_zhoda);
         }
-        celkova_zhoda = Math.min(meno_zhoda, priezvisko_zhoda);
+
+        celkova_zhoda = Math.min(meno_zhoda, priezvisko_zhoda); //minimalna hodnota zo zhody mena a priezviska
 
         if (list.obec() != null && !list.obec().equals("") && entity.getObec() !=null && !entity.getObec().equals("")) {
             System.out.println(list.obec());
