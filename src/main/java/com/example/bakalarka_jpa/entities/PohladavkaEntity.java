@@ -23,6 +23,8 @@ public class PohladavkaEntity {
     private String priezvisko;
     @Column(name = "nano-id")
     private String nanoId;
+    @Column(name = "dlznik")
+    private String dlznik;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -93,7 +95,13 @@ public class PohladavkaEntity {
     public void setPriezviskoUpraveneKolner(String priezviskoUpraveneKolner) {
         this.priezviskoUpraveneKolner = priezviskoUpraveneKolner;
     }
+    public String getDlznik() {
+        return dlznik;
+    }
 
+    public void setDlznik(String dlznik) {
+        this.dlznik = dlznik;
+    }
     public int getId() {
         return id;
     }

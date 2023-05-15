@@ -13,6 +13,8 @@ import org.apache.commons.codec.language.ColognePhonetic;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -240,8 +242,28 @@ public class PohladavkaService {
 
 
     public void ConvertAll() {  //funckia na upravenie údajov a uloženie do príšlušných stĺpcov v databáze
+        Pattern priezviskoPattern = Pattern.compile("[A-Ža-ž]+");
+        Pattern prveMenoPattern = Pattern.compile("[A-Ža-ž]+$");
+
         ArrayList<PohladavkaEntity> list = new ArrayList<>();
         pohladavkaJPA.findAll().forEach(pohladavkaEntity -> {
+            String premenna = pohladavkaEntity.getDlznik();
+            System.out.println(premenna);
+            String apremenna = removeUnwanted(pohladavkaEntity.getDlznik());
+            System.out.println(apremenna);
+            pohladavkaEntity.setDlznik(removeUnwanted(pohladavkaEntity.getDlznik()));
+            Matcher matcher = prveMenoPattern.matcher(removeUnwanted(pohladavkaEntity.getDlznik()));
+            if (matcher.find()) {
+                String firstWord = matcher.group();
+                pohladavkaEntity.setPrve_meno(firstWord);
+            }
+
+            Matcher matcherP = priezviskoPattern.matcher(removeUnwanted(pohladavkaEntity.getDlznik()));
+            if (matcherP.find()) {
+                String LastWord = matcherP.group();
+                pohladavkaEntity.setPriezvisko(LastWord);
+            }
+
             pohladavkaEntity.setPriezviskoUpravene(normalizeName(pohladavkaEntity.getPriezvisko()));
             pohladavkaEntity.setPrveMenoUpravene(normalizeName(pohladavkaEntity.getPrve_meno()));
             pohladavkaEntity.setPriezviskoUpraveneKolner(colner.encode(pohladavkaEntity.getPriezviskoUpravene()));
@@ -251,7 +273,32 @@ public class PohladavkaService {
         });
         pohladavkaJPA.saveAll(list);
     }
-
+    private String removeUnwanted(String dlznik){
+        if(dlznik !=null) {
+            dlznik = dlznik.replace("Ing.", "");
+            dlznik = dlznik.replace("arch.", "");
+            dlznik = dlznik.replace("Bc.", "");
+            dlznik = dlznik.replace("Mgr.", "");
+            dlznik = dlznik.replace("Art.", "");
+            dlznik = dlznik.replace("MVDr.", "");
+            dlznik = dlznik.replace("MUDr..", "");
+            dlznik = dlznik.replace("PhD.", "");
+            dlznik = dlznik.replace("PhDr.", "");
+            dlznik = dlznik.replace("ArtD.", "");
+            dlznik = dlznik.replace("ThLic.", "");
+            dlznik = dlznik.replace("ThDr.", "");
+            dlznik = dlznik.replace("RNDr.", "");
+            dlznik = dlznik.replace("PharmDr.", "");
+            dlznik = dlznik.replace("JUDr.", "");
+            dlznik = dlznik.replace("PaedDr.", "");
+            dlznik = dlznik.replace("CSc.", "");
+            dlznik = dlznik.replace("Doc.", "");
+            dlznik = dlznik.replace("doc.", "");
+            dlznik = dlznik.replace("MVDr.", "");
+            dlznik = dlznik.replace("DrSc.", "");
+        }
+        return dlznik;
+    }
     public String normalizeName(String zaznam) { //funkcia na úpravu mien a priezvisk pre fonetický algoritmus
         if (zaznam != null) {
             zaznam = capitalize(zaznam);
