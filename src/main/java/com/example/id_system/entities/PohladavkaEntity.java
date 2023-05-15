@@ -1,4 +1,4 @@
-package com.example.bakalarka_jpa.entities;
+package com.example.id_system.entities;
 
 import jakarta.persistence.*;
 

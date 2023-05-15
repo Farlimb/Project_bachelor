@@ -1,8 +1,8 @@
-package com.example.bakalarka_jpa;
+package com.example.id_system;
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
-import com.example.bakalarka_jpa.dto.FindRequestDTO;
-import com.example.bakalarka_jpa.entities.PohladavkaEntity;
-import com.example.bakalarka_jpa.services.PohladavkaService;
+import com.example.id_system.dto.FindRequestDTO;
+import com.example.id_system.entities.PohladavkaEntity;
+import com.example.id_system.services.PohladavkaService;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import org.apache.commons.codec.language.ColognePhonetic;
 import org.junit.jupiter.api.Test;

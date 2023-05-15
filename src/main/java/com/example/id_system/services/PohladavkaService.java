@@ -1,12 +1,12 @@
-package com.example.bakalarka_jpa.services;
+package com.example.id_system.services;
 
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
-import com.example.bakalarka_jpa.dto.CreateRequestDTO;
-import com.example.bakalarka_jpa.dto.FindRequestDTO;
-import com.example.bakalarka_jpa.dto.FindResponseDTO;
-import com.example.bakalarka_jpa.dto.UpdateRequestDTO;
-import com.example.bakalarka_jpa.entities.PohladavkaEntity;
-import com.example.bakalarka_jpa.interfaces.PohladavkaJPA;
+import com.example.id_system.dto.CreateRequestDTO;
+import com.example.id_system.dto.FindRequestDTO;
+import com.example.id_system.dto.FindResponseDTO;
+import com.example.id_system.dto.UpdateRequestDTO;
+import com.example.id_system.entities.PohladavkaEntity;
+import com.example.id_system.interfaces.PohladavkaJPA;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import org.springframework.stereotype.Service;
 import org.apache.commons.codec.language.ColognePhonetic;

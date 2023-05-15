@@ -1,6 +1,6 @@
-package com.example.bakalarka_jpa.interfaces;
+package com.example.id_system.interfaces;
 
-import com.example.bakalarka_jpa.entities.PohladavkaEntity;
+import com.example.id_system.entities.PohladavkaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
