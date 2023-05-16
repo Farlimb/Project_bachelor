@@ -32,13 +32,12 @@ public class PohladavkaController {
 
     @PostMapping(value="/update",produces = MediaType.APPLICATION_JSON_VALUE) //Web funkcia na vyhľadanie a vytvorenie nového záznamu podľa poslaných vstupných údajov s tým istým identifikátorom
     @ResponseBody
-    public Set<FindResponseDTO> updateByparams(@RequestBody UpdateRequestDTO params){
-
+    public Set<FindResponseDTO> updateByParams(@RequestBody UpdateRequestDTO params){
          return Collections.singleton(pohladavkaService.UpdateByParams(params));
     }
 
     @PostMapping(value="/create",produces = MediaType.APPLICATION_JSON_VALUE) //Web funkcia na vytvorenie nového záznamu podľa poslaných vstupných údajov
-    public Set<FindResponseDTO> createByparams(@RequestBody CreateRequestDTO params){
+    public Set<FindResponseDTO> createByParams(@RequestBody CreateRequestDTO params){
         return Collections.singleton(pohladavkaService.CreateByParams(params));
     }
 

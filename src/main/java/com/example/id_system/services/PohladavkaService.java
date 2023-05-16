@@ -170,8 +170,8 @@ public class PohladavkaService {
         String meno_Kolner = colner.encode(normalizeName(list.meno()));
         String priezvisko_Kolner = colner.encode(normalizeName(list.priezvisko()));
         nanoId = list.nanoId();
-        PohladavkaEntity result = pohladavkaJPA.findFirstByPrveMenoUpraveneKolnerAndPriezviskoUpraveneKolnerAndObecAndUlicaAndNanoId(meno_Kolner, priezvisko_Kolner,list.obec(),list.ulica(), nanoId);
-        PohladavkaEntity checkUp = pohladavkaJPA.findFirstByPrveMenoUpraveneKolnerAndPriezviskoUpraveneKolnerAndObecAndUlicaAndNanoId(colner.encode(normalizeName(list.menoUprava())), colner.encode(normalizeName(list.priezviskoUprava())),list.obecUprava(),list.ulicaUprava(), nanoId);
+        PohladavkaEntity result = pohladavkaJPA.findFirstByPrveMenoUpraveneKolnerAndPriezviskoUpraveneKolnerAndObecAndUlicaAndNanoId(meno_Kolner, priezvisko_Kolner,list.obec(),normalizeStreet(list.ulica()), nanoId);
+        PohladavkaEntity checkUp = pohladavkaJPA.findFirstByPrveMenoUpraveneKolnerAndPriezviskoUpraveneKolnerAndObecAndUlicaAndNanoId(colner.encode(normalizeName(list.menoUprava())), colner.encode(normalizeName(list.priezviskoUprava())),list.obecUprava(),normalizeStreet(list.ulicaUprava()), nanoId);
         System.out.println(result);
         System.out.println(checkUp);
         if(checkUp != null){ //kontrola či nové dáta sa úplne nezhodujú so starými dátami
@@ -299,6 +299,19 @@ public class PohladavkaService {
         }
         return dlznik;
     }
+    public String normalizeStreet(String ulica){
+        if (ulica != null) {
+            ulica = ulica.replace("ul.","");
+            ulica = ulica.replace("Ul.","");
+            ulica = ulica.replace("Ulica","");
+            ulica = ulica.replace("ulica","");
+            ulica = ulica.replace("."," ");
+            ulica = ulica.replace(","," ");
+            ulica = ulica.trim();
+        }
+        return ulica;
+    }
+
     public String normalizeName(String zaznam) { //funkcia na úpravu mien a priezvisk pre fonetický algoritmus
         if (zaznam != null) {
             zaznam = capitalize(zaznam);
@@ -346,11 +359,11 @@ public class PohladavkaService {
         return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
     }
 
-    public String removeDuplicates(String string) { //funkcia na odstránenie písmen v mene a priezvisku ktoré sa opakujú za sebou
-        if (string == null) {
+    public String removeDuplicates(String str) { //funkcia na odstránenie písmen v mene a priezvisku ktoré sa opakujú za sebou
+        if (str == null) {
             return null;
         }
-        char[] chars = string.toCharArray();
+        char[] chars = str.toCharArray();
         char previous = ' ';
         int i = 0;
         for (char c : chars) {
@@ -362,7 +375,7 @@ public class PohladavkaService {
         return new String(chars).substring(0, i);
     }
 
-    public int calculateMatch(FindRequestDTO list, PohladavkaEntity entity, int celkova_zhoda) { //funkcia na výpočet celkovej zhody podľa nastavených vstupných hodnôt
+    public int calculateMatch(FindRequestDTO list, PohladavkaEntity entity, int celkovaZhoda) { //funkcia na výpočet celkovej zhody podľa nastavených vstupných hodnôt
 
         if (list.meno() != null && entity.getPrve_meno() !=null) {
             meno_zhoda = FuzzySearch.ratio(capitalize(list.meno()), entity.getPrve_meno());
@@ -379,26 +392,91 @@ public class PohladavkaService {
             System.out.println(obec_zhoda);
         }
         if (list.ulica() != null && !list.ulica().equals("") && entity.getUlica() !=null && !entity.getUlica().equals("")) {
-            ulica_zhoda = FuzzySearch.weightedRatio(list.ulica(), entity.getUlica());
+            String ulicaMeno = null;
+            String ulicaCislo = null;
+            String entityMeno = null;
+            String entityCislo = null;
+            Pattern streetPattern = Pattern.compile("^(\\b\\D+\\b)?\\s*(\\b.*?\\d.*?\\b)\\s*(\\b\\D+\\b)?$");
+            Matcher listMatcher = streetPattern.matcher(normalizeStreet(list.ulica()));
+            if (listMatcher.find())
+            {
+                String group1 = listMatcher.group(1);
+                String group3 = listMatcher.group(3);
+                if (group1 == null && group3 == null)
+                {
+                    // zle zadane
+                }
+                else if (group1 != null && group3 != null)
+                {
+                    // zle zadane
+                }
+                else
+                {
+                    ulicaMeno = (group1 != null) ? group1 : group3;
+                    ulicaCislo = listMatcher.group(2);
+                }
+            }
+
+            Matcher entityMatcher = streetPattern.matcher(normalizeStreet(entity.getUlica()));
+            if (entityMatcher.find())
+            {
+                String group4 = entityMatcher.group(1);
+                String group6 = entityMatcher.group(3);
+                if (group4 == null && group6 == null)
+                {
+                    // zle zadane
+                }
+                else if (group4 != null && group6 != null)
+                {
+                    // zle zadane
+                }
+                else
+                {
+                     entityMeno = (group4 != null) ? group4 : group6;
+                     entityCislo = entityMatcher.group(2);
+                }
+            }
+            if(ulicaMeno==null || ulicaCislo==null || entityMeno==null || entityCislo==null) {
+                ulica_zhoda = FuzzySearch.weightedRatio(normalizeStreet(list.ulica()), normalizeStreet(entity.getUlica()));
+            }
+            else{
+                int menoUlicaZhoda = FuzzySearch.weightedRatio(ulicaMeno, entityMeno);
+                int cisloUlicaZhoda = 100;
+
+                String[] entityParts = entityCislo.split("/");
+                String[] ulicaParts = ulicaCislo.split("/");
+                int x = 0;
+                for (String entityPart : entityParts) {
+                    System.out.println(entityPart);
+                    if (x < ulicaParts.length && ulicaParts[x] != null) {
+                        if(!ulicaParts[x].equals(entityPart)){
+                            cisloUlicaZhoda = 0;
+                        }
+                    }
+                    x++;
+                }
+                //int cisloUlicaZhodaReversed = FuzzySearch.tokenSetPartialRatio(ulicaCislo, entityCislo);
+                ulica_zhoda = Math.min(menoUlicaZhoda, cisloUlicaZhoda);
+            }
             System.out.println(ulica_zhoda);
         }
 
-        celkova_zhoda = Math.min(meno_zhoda, priezvisko_zhoda); //minimalna hodnota zo zhody mena a priezviska
+        celkovaZhoda = Math.min(meno_zhoda, priezvisko_zhoda); //minimalna hodnota zo zhody mena a priezviska
 
         if (list.obec() != null && !list.obec().equals("") && entity.getObec() !=null && !entity.getObec().equals("")) {
             System.out.println(list.obec());
-            celkova_zhoda = Math.min(celkova_zhoda, obec_zhoda);
+            celkovaZhoda = Math.min(celkovaZhoda, obec_zhoda);
         }
 
         if (list.ulica() != null && !list.ulica().equals("") && entity.getUlica() !=null && !entity.getUlica().equals("")){
             System.out.println(list.ulica());
-            celkova_zhoda = Math.min(celkova_zhoda, ulica_zhoda);
+            celkovaZhoda = Math.min(celkovaZhoda, ulica_zhoda);
         }
         if (Objects.equals(list.nanoId(), entity.getNanoId())) {
             System.out.println(list.nanoId());
-            celkova_zhoda = 100;
+            celkovaZhoda = 100;
         }
-        return celkova_zhoda;
+        return celkovaZhoda;
     }
 
     private boolean isBlank(String string){
