@@ -45,6 +45,7 @@ public class SeleniumTests {
         DeleteByParams(wait,"SkuskaJózsef", "Gyula", "Košice", "Kotbuská 8");
         DeleteByParams(wait,"SkuskaJóžef", "Ďula", "Košice", "Tomášikova 4");
     }
+
     @Test
     public void verifyCreateAndDelete(){
         var expectedURL = "http://localhost:8080/createnew.html";

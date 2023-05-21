@@ -30,7 +30,7 @@ public class PohladavkaEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
-
+    //Gettery a settery pre hodnoty v databáze
     public String getPrve_meno() {
         return prve_meno;
     }

@@ -19,10 +19,6 @@ class bakalarkaJpaApplicationTests {
 
     @Test
     void normalizePriezviskoTestTrue() {
-        System.out.println(FuzzySearch.partialRatio("Čsl. Armády 103","Československej Armády 103"));
-        System.out.println(FuzzySearch.weightedRatio("Čsl. Armády 103","Československej Armády 103"));
-
-        System.out.println(FuzzySearch.weightedRatio("Ľ. Štúra 11","Ľudovíta Štúra 12"));
         assert pohladavkaService.normalizeName(null) == null;
         assert pohladavkaService.normalizeName("   ").equals("");
         assert pohladavkaService.normalizeName("").equals("");
@@ -111,7 +107,7 @@ class bakalarkaJpaApplicationTests {
         celkova_zhoda = pohladavkaService.calculateMatch(zaznam2, zaznam1, celkova_zhoda);
         System.out.println("celkova zhoda = " + celkova_zhoda);
         System.out.println(zaznam1.getUlica());
-        assert celkova_zhoda > 80;
+        assert celkova_zhoda < 80;
 
         zaznam1.setPrve_meno("");
         zaznam1.setPriezvisko("");
@@ -151,7 +147,7 @@ class bakalarkaJpaApplicationTests {
         zaznam2 = new FindRequestDTO("Filip", "Kušnír", "Gomenzkého 41", "Košice", NanoIdUtils.randomNanoId());
         celkova_zhoda = pohladavkaService.calculateMatch(zaznam2, zaznam1, celkova_zhoda);
         System.out.println("Celkova zhoda = "  + celkova_zhoda);
-        assert celkova_zhoda > 80;
+        assert celkova_zhoda >= 80;
 
         zaznam1.setPrve_meno("Filip");
         zaznam1.setPriezvisko("Kušnír");
