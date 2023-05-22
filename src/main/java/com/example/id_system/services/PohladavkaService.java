@@ -285,8 +285,8 @@ public class PohladavkaService {
         pohladavkaJPA.findAll().forEach(pohladavkaEntity -> {
             String premenna = pohladavkaEntity.getDlznik();
             System.out.println(premenna);
-            // Odstránenie nežiaducich znakov zo záznamu
 
+            // Odstránenie nežiaducich znakov zo záznamu
             String apremenna = removeUnwanted(pohladavkaEntity.getDlznik());
             System.out.println(apremenna);
             pohladavkaEntity.setDlznik(removeUnwanted(pohladavkaEntity.getDlznik()));
