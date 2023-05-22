@@ -1,7 +1,9 @@
 package com.example.id_system.entities;
-
 import jakarta.persistence.*;
 
+/**
+ * Reprezentuje entitu "pohladavka" v databáze.
+ */
 @Entity
 @Table(name = "pohladavka")
 public class PohladavkaEntity {

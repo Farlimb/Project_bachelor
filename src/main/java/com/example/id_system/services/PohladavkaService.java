@@ -11,26 +11,41 @@ import me.xdrop.fuzzywuzzy.FuzzySearch;
 import org.springframework.stereotype.Service;
 import org.apache.commons.codec.language.ColognePhonetic;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import static org.springframework.http.HttpStatus.*;
 
+/**
+ * Služobná trieda na spracovanie záznamov Pohladavka.
+ */
 @Service
 public class PohladavkaService {
     private final PohladavkaJPA pohladavkaJPA;
     private ColognePhonetic colner = new ColognePhonetic();
-    public PohladavkaService(PohladavkaJPA pohladavkaJPA) {
-        this.pohladavkaJPA = pohladavkaJPA;
-    }
     private int meno_zhoda = 0;
     private int priezvisko_zhoda = 0;
     private int obec_zhoda = 0;
     private int ulica_zhoda = 0;
     private int celkova_zhoda = 0;
     private String nanoId;
+
+    /**
+     * Konštruuje novú službu PohladavkaService so zadaným úložiskom PohladavkaJPA.
+     *
+     * @param pohladavkaJPA úložisko PohladavkaJPA
+     */
+    public PohladavkaService(PohladavkaJPA pohladavkaJPA) {
+        this.pohladavkaJPA = pohladavkaJPA;
+    }
+
+    /**
+     * Odstráni záznam dlžníka na základe zadaného FindRequestDTO.
+     *
+     * @param list FindRequestDTO obsahujúci parametre na vyhľadávanie záznamu, ktorý sa má odstrániť
+     * @return správa označujúca úspešné vymazanie
+     * @throws ResponseStatusException, ak záznam nebol nájdený
+     */
 
     public String DeleteByParams(FindRequestDTO list) {         //funkcia na vymazanie záznamu dlžníka
 
@@ -44,7 +59,13 @@ public class PohladavkaService {
         throw new ResponseStatusException(ACCEPTED, "Successfully deleted");
     }
 
-
+    /**
+     * Vytvorí nový záznam Pohladavka na základe zadaného CreateRequestDTO.
+     *
+     * @param list CreateRequestDTO obsahujúce parametre nového záznamu
+     * @return FindResponseDTO obsahujúce údaje o novovytvorenom zázname
+     * @throws ResponseStatusException, ak chýba niektorý požadovaný parameter
+     */
     public FindResponseDTO CreateByParams(CreateRequestDTO list) {
         // funkcia na vytvorenie nového záznamu dlžníka
 
@@ -91,6 +112,12 @@ public class PohladavkaService {
         );
     }
 
+    /**
+     * Nájde najvhodnejší záznam Pohladavka na základe zadaného FindRequestDTO.
+     *
+     * @param list FindRequestDTO obsahujúce parametre vyhľadávania
+     * @return FindResponseDTO s údajmi o najlepšom zodpovedajúcom zázname alebo null, ak sa nenašla žiadna zhoda
+     */
     public FindResponseDTO FindBestByParams(FindRequestDTO list) {
         // funkcia na vyhľadanie záznamu alebo záznamov sediacich pre vstupné údaje
 
@@ -143,7 +170,13 @@ public class PohladavkaService {
         }
     }
 
-
+    /**
+     * Nájde záznamy Pohladavka na základe zadaného FindRequestDTO.
+     *
+     * @param list FindRequestDTO obsahujúce parametre vyhľadávania
+     * @return zoznam objektov FindResponseDTO reprezentujúcich nájdené záznamy
+     * @throws ResponseStatusException, ak sa nenašli žiadne záznamy
+     */
     public List<FindResponseDTO> FindByParams(FindRequestDTO list) { //funkcia na vyhľadanie záznamu alebo záznamov sediacich pre vstupné údaje
         //deklarácia premien pre ďalšiu prácu s nimi
 
@@ -191,7 +224,13 @@ public class PohladavkaService {
         }
     }
 
-
+    /**
+     * Aktualizuje záznam Pohladavka na základe zadaného UpdateRequestDTO.
+     *
+     * @param list UpdateRequestDTO obsahujúce parametre aktualizácie
+     * @return aktualizované FindResponseDTO reprezentujúce aktualizovaný záznam
+     * @throws ResponseStatusException, ak sa záznam, ktorý sa má aktualizovať, nenašiel alebo ak aktualizované údaje kolidujú s existujúcim záznamom
+     */
     public FindResponseDTO UpdateByParams(UpdateRequestDTO list) { //funkcia na zaevidovanie zmeny
         String meno_Kolner = colner.encode(normalizeName(list.meno()));
         String priezvisko_Kolner = colner.encode(normalizeName(list.priezvisko()));
@@ -269,7 +308,9 @@ public class PohladavkaService {
     }
 
 
-
+    /**
+     * Spracuje všetky údaje a uloží ich do príslušných stĺpcov v databáze.
+     */
     public void ConvertAll() {  //funckia na upravenie údajov a uloženie do príšlušných stĺpcov v databáze
 
         // Regex pattern pre vyhľadanie priezviska (slovo obsahujúce iba písmená)
@@ -323,7 +364,12 @@ public class PohladavkaService {
         // Uloženie všetkých upravených entít do databázy
         pohladavkaJPA.saveAll(list);
     }
-
+    /**
+     * Odstráni nežiaduce tituly z mena dlžníka.
+     *
+     * @param dlznik meno dlžníka
+     * @return meno bez nežiaducich titulov
+     */
     private String removeUnwanted(String dlznik){ //funkcia na odstránenie titulov
         if(dlznik !=null) {
             dlznik = dlznik.replace("Ing.", "");
@@ -351,6 +397,12 @@ public class PohladavkaService {
         return dlznik;
     }
 
+    /**
+     * Normalizuje názov ulice odstránením nežiaducich slov/znakov.
+     *
+     * @param ulica Názov ulice, ktorý sa má normalizovať.
+     * @return Normalizovaný názov ulice.
+     */
     public String normalizeStreet(String ulica){ //funkcia na odstránenie nežiadúcich slov/znakov
         if (ulica != null) {
             ulica = ulica.replace("ul.","");
@@ -364,6 +416,12 @@ public class PohladavkaService {
         return ulica;
     }
 
+    /**
+     * Normalizuje meno na použitie vo fonetickom algoritme.
+     *
+     * @param zaznam Názov, ktorý sa má normalizovať.
+     * @return Normalizované meno.
+     */
     public String normalizeName(String zaznam) { //funkcia na úpravu mien a priezvisk pre fonetický algoritmus
         if (zaznam != null) {
             zaznam = capitalize(zaznam);
@@ -405,12 +463,25 @@ public class PohladavkaService {
         }
         return zaznam;
     }
+
+    /**
+     * Zmení prvý znak v reťazci na veľký a zvyšné na malé písmená.
+     *
+     * @param str Reťazec, ktorý sa má napísať s veľkým prvým písmenom.
+     * @return Reťazec napísaný s veľkým prvým písmenom.
+     */
     public static String capitalize(String str) //funkcia na úpravu reťazca aby bolo prvé písmeno veľké a ďalšie malé
     {
         if (str == null || str.length() == 0) return str;
         return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
     }
 
+    /**
+     * Odstráni duplicitné písmená v reťazci.
+     *
+     * @param str Reťazec, z ktorého sa majú odstrániť duplikáty.
+     * @return Reťazec bez duplicitných písmen.
+     */
     public String removeDuplicates(String str) { //funkcia na odstránenie písmen v mene a priezvisku ktoré sa opakujú za sebou
         if (str == null) {
             return null;
@@ -427,6 +498,14 @@ public class PohladavkaService {
         return new String(chars).substring(0, i);
     }
 
+    /**
+     * Vypočíta celkové skóre zhody na základe zadaných vstupných hodnôt.
+     *
+     * @param list Objekt FindRequestDTO obsahujúci kritériá vyhľadávania.
+     * @param entity Objekt PohladavkaEntity, ktorý sa má porovnať.
+     * @param celkovaZhoda Počiatočné celkové skóre zhody.
+     * @return Vypočítané celkové skóre zhody.
+     */
     public int calculateMatch(FindRequestDTO list, PohladavkaEntity entity, int celkovaZhoda) { //funkcia na výpočet celkovej zhody podľa nastavených vstupných hodnôt
 
         if (list.meno() != null && entity.getPrve_meno() !=null) {
@@ -539,7 +618,12 @@ public class PohladavkaService {
         }
         return celkovaZhoda; // Vráti vypočítanú celkovú zhodu
     }
-
+    /**
+     * Skontroluje, či je reťazec nulový, prázdny alebo či obsahuje iba biele znaky.
+     *
+     * @param string Reťazec, ktorý sa má skontrolovať.
+     * @return {@code true} ak je reťazec nulový, prázdny alebo obsahuje iba biele znaky, {@code false} v opačnom prípade.
+     */
     private boolean isBlank(String string){ //funkcia na zistenie či reťazec je prázdny/plný medzier
         return string==null || string.trim().isEmpty();
     }
