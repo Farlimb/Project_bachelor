@@ -224,7 +224,6 @@ public class PohladavkaService {
 
     /**
      * Aktualizuje záznam Pohladavka na základe zadaného UpdateRequestDTO.
-     *
      * @param list UpdateRequestDTO obsahujúce parametre aktualizácie
      * @return aktualizované FindResponseDTO reprezentujúce aktualizovaný záznam alebo chybovú hlášku ak sa záznam, ktorý sa má aktualizovať, nenašiel alebo ak aktualizované údaje kolidujú s existujúcim záznamom
      */
