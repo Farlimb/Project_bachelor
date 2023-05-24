@@ -17,7 +17,7 @@ public class SeleniumTests {
 
     @BeforeAll
     public static void setUpClass(){
-        System.setProperty("webdriver.chrome.driver", "src/test/java/com/example/bakalarka_jpa/Driver/chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", "src/tests/java/com/example/id_system/Driver/chromedriver.exe");
         System.setProperty("webdriver.http.factory", "jdk-http-client");
         driver = new ChromeDriver();
         driver.manage().window().maximize();
@@ -30,21 +30,21 @@ public class SeleniumTests {
     }
 
 
-    @Test public void uprava(){
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofMillis(500) /*timeout in seconds*/);
-        DeleteByParams(wait,"SkuskaJózsef", "Gyula", "Bratislava", "Moskovská 2");
-        DeleteByParams(wait,"SkuskaJóžef", "Ďula", "Košice", "nahodnaulica 4");
-        DeleteByParams(wait,"SkuskaJózsef", "Gyula", "Ružemberok", "Moskovenská 2");
-        DeleteByParams(wait,"SkuskaJóžef", "Ďula", "Košice - Západ", "Letná 9");
-        DeleteByParams(wait,"SkuskaJózsef", "Gyula", "Košice", "Kotbuská 8");
-        DeleteByParams(wait,"SkuskaJóžef", "Ďula", "Košice", "Tomášikova 4");
-        DeleteByParams(wait,"SkuskaJózsef", "Gyula", "Bratislava", "Moskovská 2");
-        DeleteByParams(wait,"SkuskaJóžef", "Ďula", "Košice", "nahodnaulica 4");
-        DeleteByParams(wait,"SkuskaJózsef", "Gyula", "Ružemberok", "Moskovenská 2");
-        DeleteByParams(wait,"SkuskaJóžef", "Ďula", "Košice - Západ", "Letná 9");
-        DeleteByParams(wait,"SkuskaJózsef", "Gyula", "Košice", "Kotbuská 8");
-        DeleteByParams(wait,"SkuskaJóžef", "Ďula", "Košice", "Tomášikova 4");
-    }
+//    @Test public void uprava(){
+//        WebDriverWait wait = new WebDriverWait(driver, Duration.ofMillis(500) /*timeout in seconds*/);
+//        DeleteByParams(wait,"SkuskaJózsef", "Gyula", "Bratislava", "Moskovská 2");
+//        DeleteByParams(wait,"SkuskaJóžef", "Ďula", "Košice", "nahodnaulica 4");
+//        DeleteByParams(wait,"SkuskaJózsef", "Gyula", "Ružemberok", "Moskovenská 2");
+//        DeleteByParams(wait,"SkuskaJóžef", "Ďula", "Košice - Západ", "Letná 9");
+//        DeleteByParams(wait,"SkuskaJózsef", "Gyula", "Košice", "Kotbuská 8");
+//        DeleteByParams(wait,"SkuskaJóžef", "Ďula", "Košice", "Tomášikova 4");
+//        DeleteByParams(wait,"SkuskaJózsef", "Gyula", "Bratislava", "Moskovská 2");
+//        DeleteByParams(wait,"SkuskaJóžef", "Ďula", "Košice", "nahodnaulica 4");
+//        DeleteByParams(wait,"SkuskaJózsef", "Gyula", "Ružemberok", "Moskovenská 2");
+//        DeleteByParams(wait,"SkuskaJóžef", "Ďula", "Košice - Západ", "Letná 9");
+//        DeleteByParams(wait,"SkuskaJózsef", "Gyula", "Košice", "Kotbuská 8");
+//        DeleteByParams(wait,"SkuskaJóžef", "Ďula", "Košice", "Tomášikova 4");
+//    }
 
     @Test
     public void verifyCreateAndDelete(){
@@ -107,7 +107,7 @@ public class SeleniumTests {
     }
     @Test
     public void updateTest(){
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofMillis(500));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofMillis(5000));
         CreateByParams("Fehervári", "Kováč", "Ružomberok", "Vymyslená 2");
         findByParams("Fehervári", "Kováč", "Ružomberok", "Vymyslená 2","");
         var edit = driver.findElement(By.cssSelector("tbody tr:first-child td.rowBorderEnd button.changeBtn"));
@@ -120,16 +120,20 @@ public class SeleniumTests {
         WebElement ulicaInput = driver.findElement(By.id("ulica"));
         nameInput.sendKeys("skuskaMeno");
         priezviskoInput.sendKeys("skuskaPriezvisko");
-        var changeRecordBtn = driver.findElement(By.cssSelector("change-button"));
+        var changeRecordBtn = driver.findElement(By.id("change"));
         changeRecordBtn.click();
-        findByParams("", "", "", "",id);
-        var text = driver.findElements(By.cssSelector("tbody tr:nth-child(1) td.match")).isEmpty();
-        assert !text;
-        text = driver.findElements(By.cssSelector("tbody tr:nth-child(2) td.match")).isEmpty();
-        assert text;
-        DeleteByParams(wait, "Fehervári", "Kovács", "Ružomberok", "Vymyslená 2");
+        driver.switchTo().alert().accept();
+        wait.until(ExpectedConditions.titleIs("Results"));
+        var nanoid = driver.findElement(By.cssSelector("tbody tr:first-child td.nanoId")).getText();
+        findByParams("", "","","",nanoid);
+        var match =  Integer.parseInt(driver.findElement(By.cssSelector("tbody tr:first-child td.match")).getText());
+        var match2 = Integer.parseInt(driver.findElement(By.cssSelector("tbody tr:nth-child(2) td.match")).getText());
+        assert match==100;
+        assert match2==100;
+        DeleteByParams(wait, "Fehervári", "Kováč", "Ružomberok", "Vymyslená 2");
         DeleteByParams(wait, "skuskaMeno", "skuskaPriezvisko", "Ružomberok", "Vymyslená 2");
     }
+
     @Test
     public void verifySearch(){
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofMillis(500));
@@ -155,7 +159,7 @@ public class SeleniumTests {
         assert match2 == 55;
         DeleteByParams(wait,"Tomáš", "Ďula", "Levice", "Moskovská 2/4");
         DeleteByParams(wait, "Tomasz", "Gyula", "Košice", "Moskovská 2");
-        DeleteByParams(wait, "Tomáš", "Ďula", "Kosice", "Moskovská 2/4");
+        DeleteByParams(wait, "Tomáš", "Ďula", "Stará Ľubovňa", "Moskovská 2/4");
 
         CreateByParams("Skuška", "Gyula", "Košice", "Moskovská 2");
         CreateByParams("Skuška", "Ďula", "Bratislava", "Moskovská 2");

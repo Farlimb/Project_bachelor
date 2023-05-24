@@ -97,6 +97,51 @@ class bakalarkaJpaApplicationTests {
         System.out.println("Celkova zhoda = "  + celkova_zhoda);
         assert celkova_zhoda == 0;
 
+        zaznam1.setPrve_meno("Filip");
+        zaznam1.setPriezvisko("Kušnír");
+        zaznam1.setUlica("Háj 42");
+        zaznam1.setObec("Závada");
+        zaznam1.setNanoId(NanoIdUtils.randomNanoId());
+        zaznam2 = new FindRequestDTO("Filip", "Kušnír", "Háj 72/42", "Závadka", NanoIdUtils.randomNanoId());
+        celkova_zhoda = pohladavkaService.calculateMatch(zaznam2, zaznam1, celkova_zhoda);
+        System.out.println("celkova zhoda = " + celkova_zhoda);
+        System.out.println(zaznam1.getUlica());
+        assert celkova_zhoda < 80;
+
+        zaznam1.setPrve_meno("Csongor");
+        zaznam1.setPriezvisko("Kassai");
+        zaznam1.setUlica("Pod hrádkom 5");
+        zaznam1.setObec("Bratislava");
+        zaznam1.setNanoId(NanoIdUtils.randomNanoId());
+        zaznam2 = new FindRequestDTO("Csongor", "Kassai", "Pod hradom 5", "Bratislava", NanoIdUtils.randomNanoId());
+        celkova_zhoda = pohladavkaService.calculateMatch(zaznam2, zaznam1, celkova_zhoda);
+        System.out.println("celkova zhoda = " + celkova_zhoda);
+        System.out.println(zaznam2.ulica());
+        System.out.println(zaznam1.getUlica());
+        assert celkova_zhoda > 80;
+
+        zaznam1.setPrve_meno("Csongor");
+        zaznam1.setPriezvisko("Kassai");
+        zaznam1.setUlica("Pod hradom 5");
+        zaznam1.setObec("Bratislava");
+        zaznam1.setNanoId(NanoIdUtils.randomNanoId());
+        zaznam2 = new FindRequestDTO("Čongor", "Kašaj", "Pod hrádkom 5/7", "Bratislava", NanoIdUtils.randomNanoId());
+        celkova_zhoda = pohladavkaService.calculateMatch(zaznam2, zaznam1, celkova_zhoda);
+        System.out.println("celkova zhoda = " + celkova_zhoda);
+        System.out.println(zaznam1.getUlica());
+        assert celkova_zhoda < 80;
+
+
+        zaznam1.setPrve_meno("Filip");
+        zaznam1.setPriezvisko("Kušnír");
+        zaznam1.setUlica("Háj 42");
+        zaznam1.setObec("Michalovce");
+        zaznam1.setNanoId(NanoIdUtils.randomNanoId());
+        zaznam2 = new FindRequestDTO("Filip", "Kušnír", "Háj 72/42", "Michalová", NanoIdUtils.randomNanoId());
+        celkova_zhoda = pohladavkaService.calculateMatch(zaznam2, zaznam1, celkova_zhoda);
+        System.out.println("celkova zhoda = " + celkova_zhoda);
+        System.out.println(zaznam1.getUlica());
+        assert celkova_zhoda < 80;
 
         zaznam1.setPrve_meno("Filip");
         zaznam1.setPriezvisko("Kušnír");

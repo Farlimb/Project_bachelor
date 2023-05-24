@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 import static org.springframework.http.HttpStatus.*;
 
 /**
+ * @author Filip Kušnír
  * Služobná trieda na spracovanie záznamov Pohladavka.
  */
 @Service
@@ -43,8 +44,7 @@ public class PohladavkaService {
      * Odstráni záznam dlžníka na základe zadaného FindRequestDTO.
      *
      * @param list FindRequestDTO obsahujúci parametre na vyhľadávanie záznamu, ktorý sa má odstrániť
-     * @return správa označujúca úspešné vymazanie
-     * @throws ResponseStatusException, ak záznam nebol nájdený
+     * @return správa označujúca úspešné vymazanie alebo nenájdenie záznamu
      */
 
     public String DeleteByParams(FindRequestDTO list) {         //funkcia na vymazanie záznamu dlžníka
@@ -63,8 +63,7 @@ public class PohladavkaService {
      * Vytvorí nový záznam Pohladavka na základe zadaného CreateRequestDTO.
      *
      * @param list CreateRequestDTO obsahujúce parametre nového záznamu
-     * @return FindResponseDTO obsahujúce údaje o novovytvorenom zázname
-     * @throws ResponseStatusException, ak chýba niektorý požadovaný parameter
+     * @return FindResponseDTO obsahujúce údaje o novovytvorenom zázname alebo chybovú hlášku ak chýba niektorý požadovaný parameter
      */
     public FindResponseDTO CreateByParams(CreateRequestDTO list) {
         // funkcia na vytvorenie nového záznamu dlžníka
@@ -116,7 +115,7 @@ public class PohladavkaService {
      * Nájde najvhodnejší záznam Pohladavka na základe zadaného FindRequestDTO.
      *
      * @param list FindRequestDTO obsahujúce parametre vyhľadávania
-     * @return FindResponseDTO s údajmi o najlepšom zodpovedajúcom zázname alebo null, ak sa nenašla žiadna zhoda
+     * @return FindResponseDTO s údajmi o najlepšom zodpovedajúcom zázname alebo null, ak sa nenašla žiadna zhoda alebo chybovú hlášku ak chýba niektorý požadovaný parameter
      */
     public FindResponseDTO FindBestByParams(FindRequestDTO list) {
         // funkcia na vyhľadanie záznamu alebo záznamov sediacich pre vstupné údaje
@@ -136,9 +135,9 @@ public class PohladavkaService {
             // musí sa zedifinovať ináč neprejde funckia findallby
             priezvisko_Kolner = "x";
         }
-
+        var nanoid = list.nanoId().trim();
         // Vyhľadanie všetkých záznamov s rovnakou fonetickou stopou prvého mena a priezviska
-        List<PohladavkaEntity> result = pohladavkaJPA.findAllByPrveMenoUpraveneKolnerAndPriezviskoUpraveneKolnerOrNanoId(meno_Kolner, priezvisko_Kolner, list.nanoId());
+        List<PohladavkaEntity> result = pohladavkaJPA.findAllByPrveMenoUpraveneKolnerAndPriezviskoUpraveneKolnerOrNanoId(meno_Kolner, priezvisko_Kolner, nanoid);
 
         // Set<FindResponseDTO> setEntit = new HashSet<>();
         List<FindResponseDTO> sortedList = new ArrayList<>();;
@@ -174,8 +173,7 @@ public class PohladavkaService {
      * Nájde záznamy Pohladavka na základe zadaného FindRequestDTO.
      *
      * @param list FindRequestDTO obsahujúce parametre vyhľadávania
-     * @return zoznam objektov FindResponseDTO reprezentujúcich nájdené záznamy
-     * @throws ResponseStatusException, ak sa nenašli žiadne záznamy
+     * @return zoznam objektov FindResponseDTO reprezentujúcich nájdené záznamy alebo chybovú hlášku ak sa nenašli žiadne záznamy
      */
     public List<FindResponseDTO> FindByParams(FindRequestDTO list) { //funkcia na vyhľadanie záznamu alebo záznamov sediacich pre vstupné údaje
         //deklarácia premien pre ďalšiu prácu s nimi
@@ -192,9 +190,9 @@ public class PohladavkaService {
         if(priezvisko_Kolner==null){ //musí sa zedifinovať ináč neprejde funckia findallby
             priezvisko_Kolner = "x";
         }
-
+        var nanoid = list.nanoId().trim();
         //Vyhľadanie všetkých záznamov s rovnakou fonetickou stopou prvého mena a priezviska
-        List<PohladavkaEntity> result = pohladavkaJPA.findAllByPrveMenoUpraveneKolnerAndPriezviskoUpraveneKolnerOrNanoId(meno_Kolner, priezvisko_Kolner, list.nanoId());
+        List<PohladavkaEntity> result = pohladavkaJPA.findAllByPrveMenoUpraveneKolnerAndPriezviskoUpraveneKolnerOrNanoId(meno_Kolner, priezvisko_Kolner, nanoid);
 
         //Set<FindResponseDTO> setEntit = new HashSet<>();
         List<FindResponseDTO> sortedList =  new ArrayList<>();;
@@ -228,13 +226,12 @@ public class PohladavkaService {
      * Aktualizuje záznam Pohladavka na základe zadaného UpdateRequestDTO.
      *
      * @param list UpdateRequestDTO obsahujúce parametre aktualizácie
-     * @return aktualizované FindResponseDTO reprezentujúce aktualizovaný záznam
-     * @throws ResponseStatusException, ak sa záznam, ktorý sa má aktualizovať, nenašiel alebo ak aktualizované údaje kolidujú s existujúcim záznamom
+     * @return aktualizované FindResponseDTO reprezentujúce aktualizovaný záznam alebo chybovú hlášku ak sa záznam, ktorý sa má aktualizovať, nenašiel alebo ak aktualizované údaje kolidujú s existujúcim záznamom
      */
     public FindResponseDTO UpdateByParams(UpdateRequestDTO list) { //funkcia na zaevidovanie zmeny
         String meno_Kolner = colner.encode(normalizeName(list.meno()));
         String priezvisko_Kolner = colner.encode(normalizeName(list.priezvisko()));
-        nanoId = list.nanoId();
+        nanoId = list.nanoId().trim();
         PohladavkaEntity result = pohladavkaJPA.findFirstByPrveMenoUpraveneKolnerAndPriezviskoUpraveneKolnerAndObecAndUlicaAndNanoId(meno_Kolner, priezvisko_Kolner,list.obec(),normalizeStreet(list.ulica()), nanoId);
         PohladavkaEntity checkUp = pohladavkaJPA.findFirstByPrveMenoUpraveneKolnerAndPriezviskoUpraveneKolnerAndObecAndUlicaAndNanoId(colner.encode(normalizeName(list.menoUprava())), colner.encode(normalizeName(list.priezviskoUprava())),list.obecUprava(),normalizeStreet(list.ulicaUprava()), nanoId);
         System.out.println(result);
